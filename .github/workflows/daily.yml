@@ -1,0 +1,93 @@
+# 判定を GitHub のサーバーで実行し、スマホ用ページ（GitHub Pages）に公開する（メール通知なし）
+name: daily
+
+on:
+  schedule:
+    # 時刻は UTC で書く（日本時間 −9時間）。GitHub 側の混雑で数分〜数十分遅れることがあります
+    - cron: "20 0 * * 1-5"   # 平日  9:20（日本時間）
+    - cron: "0 3 * * 1-5"    # 平日 12:00
+    - cron: "20 5 * * 1-5"   # 平日 14:20
+    - cron: "0 1 * * 6"      # 土曜 10:00 … 今年のバックテストを更新
+  push:
+    branches: [main]
+    paths: ["config/**"]     # 銘柄リストを編集したら自動で再判定
+  workflow_dispatch:         # 手動実行（Actions 画面の「Run workflow」）
+    inputs:
+      backtest:
+        description: "バックテストも実行する"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # data/ の履歴をリポジトリに保存するため
+  pages: write
+  id-token: write
+
+concurrency:
+  group: daily
+  cancel-in-progress: false
+
+env:
+  TZ: Asia/Tokyo
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: 認証ファイルを用意（スプレッドシートを使う場合のみ）
+        env:
+          GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
+        run: |
+          if [ -n "$GCP_SA_JSON" ]; then printf '%s' "$GCP_SA_JSON" > credentials.json; fi
+
+      - name: 判定
+        if: github.event.schedule != '0 1 * * 6'
+        env:
+          SPREADSHEET_KEY: ${{ secrets.SPREADSHEET_KEY }}
+        run: |
+          OPTS="--no-mail"
+          if [ "${{ github.event_name }}" = "push" ]; then OPTS="$OPTS --no-sheet"; else OPTS="$OPTS --paper"; fi
+          python daily_run.py $OPTS
+
+      - name: バックテスト（今年）
+        if: github.event.schedule == '0 1 * * 6' || inputs.backtest
+        run: python backtest.py --year $(date +%Y)
+
+      - name: スマホ用ページを作成
+        if: always()
+        run: python mobile.py
+
+      - name: 履歴をリポジトリに保存
+        if: always()
+        run: |
+          rm -f credentials.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet && exit 0
+          git commit -m "判定結果 $(date '+%Y-%m-%d %H:%M')"
+          git pull --rebase --autostash
+          git push
+
+      - uses: actions/configure-pages@v5
+        if: always()
+      - uses: actions/upload-pages-artifact@v3
+        if: always()
+        with:
+          path: site
+      - id: deploy
+        if: always()
+        uses: actions/deploy-pages@v4
