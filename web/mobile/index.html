@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#18181b">
+<title>株シグナル</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{
+  --bg:#f4f3f0; --panel:#fff; --ink:#1b1b1d; --sub:#6c6c72; --line:#e5e3de; --soft:#eeece7;
+  --buy:#c8322d; --buy-soft:#fbe7e5; --sbuy:#a01d18;
+  --sell:#1f5fbf; --sell-soft:#e4edfb; --ssell:#133f86;
+  --hold:#85858b; --warn:#a86200; --warn-soft:#fff3df; --bar:#18181b;
+  --mono:ui-monospace,"Roboto Mono","SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#111113; --panel:#1b1b1f; --ink:#ececee; --sub:#9b9ba3; --line:#2c2c32; --soft:#24242a;
+  --buy:#f06a5f; --buy-soft:#3a1d1c; --sbuy:#ff8a7f;
+  --sell:#6aa2f2; --sell-soft:#192840; --ssell:#95bdff;
+  --hold:#8c8c94; --warn:#e7a641; --warn-soft:#352a17; --bar:#18181b;
+}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font-family:"Noto Sans JP","Hiragino Sans",Roboto,sans-serif;font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.up{color:var(--buy)}.down{color:var(--sell)}.muted{color:var(--sub)}
+
+/* ヘッダー */
+.top{position:sticky;top:0;z-index:5;background:var(--bar);color:#f2f2f3;
+  padding:calc(10px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:12px}
+.top h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.02em}
+.top .meta{font-size:12px;opacity:.72}
+.top .sp{flex:1}
+.iconbtn{width:40px;height:40px;border-radius:20px;display:grid;place-items:center}
+.iconbtn:active{background:rgba(255,255,255,.12)}
+.iconbtn svg{width:22px;height:22px}
+.spin svg{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+
+.page{max-width:560px;margin:0 auto;padding:12px 12px 24px}
+.banner{border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:10px;background:var(--warn-soft);color:var(--warn)}
+.banner b{display:block}
+.banner.info{background:var(--soft);color:var(--sub);font-size:12px}
+.live{display:inline-block;font-size:11px;font-weight:700;color:#18181b;background:#f0b44c;border-radius:4px;padding:0 6px;margin:0 2px;opacity:1}
+.prov{font-size:10px;font-weight:700;color:var(--warn);background:var(--warn-soft);border-radius:4px;padding:1px 6px}
+
+/* サマリー */
+.sum{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px}
+.sum button{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 2px 6px;text-align:center}
+.sum .v{font-size:22px;font-weight:700;line-height:1.1}
+.sum .k{font-size:10px;color:var(--sub);line-height:1.2;margin-top:2px}
+.sum .on{outline:2px solid var(--ink);outline-offset:-2px}
+.sum [data-d$="BUY"] .v{color:var(--buy)}.sum [data-d$="SELL"] .v{color:var(--sell)}.sum [data-d="HOLD"] .v{color:var(--hold)}
+.sum [data-d] .v.zero{opacity:.35}
+
+.secttl{display:flex;align-items:baseline;justify-content:space-between;margin:14px 4px 8px;font-size:13px;color:var(--sub);font-weight:600}
+.secttl button{font-size:12px;color:var(--sub);font-weight:400;text-decoration:underline}
+
+/* 銘柄カード */
+.card{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.card:active{background:var(--soft)}
+.card.sig-buy{border-left:4px solid var(--buy)}.card.sig-sell{border-left:4px solid var(--sell)}
+.r1{display:flex;align-items:center;gap:8px}
+.r1 .nm{font-size:16px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r1 .cd{font-size:12px;color:var(--sub);font-weight:400;margin-left:4px}
+.badge{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.b-STRONG-BUY{background:var(--sbuy);color:#fff}.b-BUY{background:var(--buy-soft);color:var(--buy)}
+.b-HOLD{color:var(--hold);box-shadow:inset 0 0 0 1px var(--line)}
+.b-SELL{background:var(--sell-soft);color:var(--sell)}.b-STRONG-SELL{background:var(--ssell);color:#fff}
+.r2{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:end;margin-top:8px}
+.px{font-size:20px;font-weight:600;line-height:1.1}
+.chg{font-size:13px}
+.sc{text-align:right}
+.sc .n{font-size:17px;font-weight:700}
+.sc .l{font-size:10px;color:var(--sub);margin-right:4px}
+.bar{position:relative;height:6px;background:var(--soft);border-radius:3px;margin-top:4px}
+.bar i{position:absolute;top:0;bottom:0;border-radius:3px}
+.bar .mid{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--sub);opacity:.5}
+.bar .tk{position:absolute;top:0;bottom:0;width:1px;background:var(--panel)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:9px}
+.chip{font-size:11px;padding:1px 7px;border-radius:5px;border:1px solid var(--line);white-space:nowrap}
+.chip.p{color:var(--buy)}.chip.m{color:var(--sell)}
+.changed{font-size:11px;color:var(--warn);font-weight:700}
+.links{display:grid;gap:8px;margin-top:18px}
+.links a{display:flex;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-decoration:none;font-size:14px}
+.links a small{color:var(--sub);display:block;font-size:11px}
+.empty{text-align:center;color:var(--sub);padding:40px 10px}
+
+/* 履歴 */
+.day{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.day h3{margin:0;font-size:14px;padding:10px 14px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--line);background:var(--soft)}
+.day h3 .sp{flex:1}
+.day h3:last-child{border-bottom:0}
+.cnt{font-size:11px;font-weight:600}
+.hrow{display:grid;grid-template-columns:1fr auto 56px 64px;gap:8px;align-items:center;padding:9px 14px;border-top:1px solid var(--line);font-size:14px}
+.hrow:first-of-type{border-top:0}
+.hrow .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hrow .n{text-align:right;font-size:13px}
+.toggle{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);margin:0 4px 10px}
+.toggle input{width:18px;height:18px;accent-color:var(--ink)}
+
+/* 成績 */
+.rule{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.rule .t{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}
+.rule .t .sp{flex:1}
+.rule .big{font-size:22px;font-weight:700;margin-top:4px}
+.rule .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 10px;margin-top:8px;font-size:12px}
+.rule .grid div span{display:block;color:var(--sub);font-size:10px}
+.rule .grid b{font-weight:600}
+.small-tag{font-size:10px;font-weight:700;color:var(--warn);background:var(--warn-soft);padding:1px 6px;border-radius:4px}
+.months{margin-top:10px}
+.note{font-size:12px;color:var(--sub);margin:4px 4px 12px}
+
+/* 詳細シート */
+.sheet{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;transform:translateY(100%);visibility:hidden;transition:transform .22s ease,visibility 0s .22s;padding-bottom:30px}
+.sheet.open{transform:none;visibility:visible;transition:transform .22s ease}
+.sheet .top{background:var(--panel);color:var(--ink);border-bottom:1px solid var(--line)}
+.sheet .top .iconbtn:active{background:var(--soft)}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.box h4{margin:0 0 6px;font-size:12px;color:var(--sub);font-weight:600}
+.box svg{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--sub);margin-top:4px}
+.legend i{display:inline-block;width:12px;height:2px;vertical-align:middle;margin-right:3px}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+table.t td,table.t th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}
+table.t td:first-child,table.t th:first-child{text-align:left}
+table.t th{color:var(--sub);font-weight:500;font-size:12px}
+table.t tr:last-child td,table.t tr:last-child th{border-bottom:0}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kv div{background:var(--soft);border-radius:8px;padding:6px 8px}
+.kv span{display:block;font-size:10px;color:var(--sub)}
+.kv b{font-size:15px}
+.hero{display:flex;align-items:flex-end;gap:12px;margin:4px 2px 12px}
+.hero .px{font-size:28px}
+
+/* 下部ナビ */
+/* フォーム・ボタン */
+.fld{display:block;margin:10px 0}
+.fld>span{display:block;font-size:12px;color:var(--sub);margin-bottom:4px}
+.fld input,.fld select,.fld textarea,.fld2 input{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.fld textarea{min-height:64px;resize:vertical}
+.fld2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-weight:600;font-size:15px;text-decoration:none}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.danger{color:var(--buy)}
+.btn.block{display:flex;width:100%}
+.btn.sm{min-height:34px;padding:0 12px;font-size:13px;border-radius:9px}
+.btn:disabled{opacity:.45}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.help{font-size:12px;color:var(--sub);margin:2px 0 8px;line-height:1.6}
+.msg{font-size:13px;min-height:18px;margin-top:8px}.msg.err{color:var(--buy)}.msg.ok{color:#2e8540}
+@media (prefers-color-scheme:dark){.msg.ok{color:#6fcf8a}}
+.trow{display:grid;grid-template-columns:26px 1fr auto 34px;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.trow:first-child{border-top:0}
+.trow.off{opacity:.45}
+.trow input[type=checkbox]{width:20px;height:20px;accent-color:var(--ink)}
+.trow .x{font-size:18px;color:var(--sub);width:34px;height:34px}
+.trow small{display:block;color:var(--sub);font-size:11px}
+.pend{font-size:10px;font-weight:700;color:var(--warn);background:var(--warn-soft);border-radius:4px;padding:1px 5px;margin-left:4px}
+.toast{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:12px;font-size:14px;max-width:calc(100vw - 32px);box-shadow:0 6px 24px rgba(0,0,0,.25);transition:opacity .2s}
+.toast.err{background:var(--buy);color:#fff}
+
+/* 保有タブ */
+.goal{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.goal .lbl{font-size:12px;color:var(--sub)}
+.goal .big{font-size:28px;font-weight:700;line-height:1.2}
+.goal .of{font-size:13px;color:var(--sub);font-weight:400;margin-left:6px}
+.prog{height:10px;background:var(--soft);border-radius:5px;overflow:hidden;margin:10px 0 6px}
+.prog i{display:block;height:100%;border-radius:5px;background:var(--buy)}
+.goal .sub{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.goal .sub div{background:var(--soft);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--sub)}
+.goal .sub b{display:block;font-size:15px;color:var(--ink)}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.tag{font-size:11px;font-weight:700;border-radius:5px;padding:2px 7px}
+.tag.tp{background:var(--buy-soft);color:var(--buy)}.tag.sl{background:var(--sell-soft);color:var(--sell)}
+.tag.sig{background:var(--warn-soft);color:var(--warn)}.tag.na{background:var(--soft);color:var(--sub)}
+.own{font-size:10px;font-weight:700;color:var(--bg);background:var(--ink);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:2px}
+.plist{margin-top:10px;border-top:1px solid var(--line)}
+.plist .pr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.plist .pr small{color:var(--sub);font-size:11px}
+.plist .pr .v{text-align:right;font-weight:600}
+.mhead{display:flex;justify-content:space-between;font-size:13px;font-weight:700;padding:10px 0 4px}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--panel);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:var(--sub)}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button.on{color:var(--ink);font-weight:700}
+nav.tabs button.on svg{stroke-width:2.4}
+</style>
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>株シグナル</h1>
+    <div class="meta" id="meta">読み込み中…</div>
+  </div>
+  <div class="sp"></div>
+  <button class="iconbtn" id="gear" aria-label="設定">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+  </button>
+  <button class="iconbtn" id="reload" aria-label="最新の結果を読み込む">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>
+  </button>
+</header>
+
+<main class="page">
+  <div id="banners"></div>
+  <section id="tab-today"></section>
+  <section id="tab-hold" hidden></section>
+  <section id="tab-hist" hidden></section>
+  <section id="tab-perf" hidden></section>
+</main>
+
+<nav class="tabs">
+  <button data-tab="today" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 4v16M7 8h-2v8h2M17 4v16M17 6h2v7h-2"/></svg>今日</button>
+  <button data-tab="hold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2M7 6V4h10v2"/></svg>保有</button>
+  <button data-tab="perf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20h16M7 16v-5M12 16V7M17 16v-8"/></svg>成績</button>
+  <button data-tab="hist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>履歴</button>
+</nav>
+
+<div class="toast" id="toast" hidden></div>
+<div class="sheet" id="sheet" aria-hidden="true">
+  <header class="top">
+    <button class="iconbtn" id="back" aria-label="戻る"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div style="min-width:0"><h1 id="sh-title"></h1><div class="meta" id="sh-sub" style="opacity:.6"></div></div>
+  </header>
+  <div class="page" id="sh-body"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const cls = d => (d||"HOLD").replace(" ","-");
+const fmt = (v,d=0) => v==null||isNaN(v) ? "—" : Number(v).toLocaleString("ja-JP",{minimumFractionDigits:d,maximumFractionDigits:d});
+const sgn = (v,d=1) => v==null||isNaN(v) ? "—" : (v>0?"+":v<0?"−":"±") + fmt(Math.abs(v),d);
+const man = v => v==null||isNaN(v) ? "—" : (v>0?"+":v<0?"−":"") + fmt(Math.abs(v)/10000, 1) + "万";
+const DECS = ["STRONG BUY","BUY","HOLD","SELL","STRONG SELL"];
+const SHORT = {"STRONG BUY":"強い買い","BUY":"買い","HOLD":"様子見","SELL":"売り","STRONG SELL":"強い売り"};
+const decOf = s => s>=3.5?"STRONG BUY":s>=2?"BUY":s<=-3.5?"STRONG SELL":s<=-2?"SELL":"HOLD";
+const WD = "日月火水木金土";
+const md = ymd => { const d = new Date(ymd+"T00:00:00"); return `${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})`; };
+const pxFmt = v => fmt(v, v!=null && v<1000 ? 1 : 0);
+
+let S = null, tab = "today", filter = null, showHold = false, openRule = null, openPaper = null, lastLoad = 0;
+let heldCodes = new Set();
+
+// GitHub Pages 上なら、リポジトリへのリンクを作る
+const repo = (() => {
+  const h = location.hostname;
+  if (!h.endsWith(".github.io")) return null;
+  const owner = h.split(".")[0], name = location.pathname.split("/")[1] || h;
+  return `https://github.com/${owner}/${name}`;
+})();
+
+// ------------------------------------------------------------ 読み込み
+async function load() {
+  $("#reload").classList.add("spin");
+  try {
+    const r = await fetch("data.json?t=" + Date.now(), {cache: "no-store"});
+    if (!r.ok) throw new Error(r.status);
+    S = await r.json();
+    lastLoad = Date.now();
+    try { localStorage.setItem("lastSeen", S.latest.generated_at || ""); } catch {}
+    render();
+  } catch (e) {
+    if (!S) $("#tab-today").innerHTML = `<div class="empty">結果を読み込めませんでした。<br>通信状態を確認して右上の更新ボタンを押してください。</div>`;
+  } finally {
+    $("#reload").classList.remove("spin");
+  }
+}
+
+function results() {
+  const meta = Object.fromEntries((S.tickers||[]).map(t=>[t.code,t]));
+  return (S.latest.results||[])
+    .filter(r => !meta[r.code] || meta[r.code].enabled !== false)
+    .map(r => ({...r, name: meta[r.code]?.name || r.name}));
+}
+
+function jstNow() { const d = new Date(Date.now() + 9*3600e3); return d; } // UTC系 getter で日本時間を読む
+
+function render() {
+  const rs = results();
+  const L = S.latest;
+  const latestDate = rs.map(r=>r.date).sort().at(-1);
+  const at = (L.generated_at||"").slice(5).replace("-","/");
+  $("#meta").innerHTML = !latestDate ? "結果なし" : L.intraday
+    ? `${md(latestDate)} <b class="live">場中・暫定</b> ${esc(at.slice(-5))}時点`
+    : `${md(latestDate)} 終値 ・ ${esc(at)} 更新`;
+
+  // 注意表示
+  const b = [];
+  if (!navigator.onLine) b.push(`<div class="banner"><b>オフラインです</b>前回読み込んだ結果を表示しています。</div>`);
+  const n = jstNow(), wd = n.getUTCDay(), hm = n.getUTCHours()*60 + n.getUTCMinutes();
+  const today = n.toISOString().slice(0,10);
+  if (latestDate && wd>=1 && wd<=5 && hm >= 12*60+40 && latestDate < today)
+    b.push(`<div class="banner"><b>今日の判定がまだ反映されていません</b>祝日なら正常です。平日なら自動実行が失敗している可能性があります${repo?`（<a href="${repo}/actions">実行状況</a>）`:""}。</div>`);
+  if (L.failed_at) b.push(`<div class="banner"><b>${esc(L.failed_at)} の判定に失敗しました</b>前回の結果を表示しています。</div>`);
+  if ((L.errors||[]).length && !L.failed_at)
+    b.push(`<div class="banner"><b>取得できなかった銘柄</b>${L.errors.map(e=>`${esc(e.name||e.code)}: ${esc(e.error)}`).join("<br>")}</div>`);
+  if (L.intraday) b.push(`<div class="banner info">場中のため、ローソク足はまだ確定していません。株価は約20分遅れです。大引けまでに判定が変わることがあります。</div>`);
+  $("#banners").innerHTML = b.join("");
+
+  heldCodes = new Set(openTrades().map(t=>t.code));
+  renderToday(rs); renderHold(); renderHist(); renderPerf();
+}
+
+// ------------------------------------------------------------ 今日
+function scoreBar(s) {
+  const m = 6, p = Math.max(-m, Math.min(m, s)) / m * 50;
+  const col = s>=2 ? "var(--buy)" : s<=-2 ? "var(--sell)" : "var(--hold)";
+  const pos = p>=0 ? `left:50%;width:${p}%` : `left:${50+p}%;width:${-p}%`;
+  const tk = [-3.5,-2,2,3.5].map(t=>`<span class="tk" style="left:${50+t/m*50}%"></span>`).join("");
+  return `<div class="bar"><i style="${pos};background:${col}"></i>${tk}<span class="mid"></span></div>`;
+}
+
+function renderToday(rs) {
+  const cnt = Object.fromEntries(DECS.map(d=>[d,0]));
+  rs.forEach(r => cnt[r.decision]++);
+  let list = filter ? rs.filter(r=>r.decision===filter) : rs.slice();
+  list.sort((a,b) => b.score - a.score);
+
+  const sigs = list.filter(r=>r.decision!=="HOLD"), holds = list.filter(r=>r.decision==="HOLD");
+  const sec = (ttl, arr) => arr.length ? `<div class="secttl"><span>${ttl}</span><span>${arr.length}銘柄</span></div>${arr.map(card).join("")}` : "";
+
+  const links = [
+    `<a href="pc.html">PC版のダッシュボード<small>チャートを大きく見る</small></a>`,
+  ].join("");
+
+  $("#tab-today").innerHTML = `
+    <div class="sum">${DECS.map(d=>`<button data-d="${d}" class="${filter===d?"on":""}"><div class="v num ${cnt[d]?"":"zero"}">${cnt[d]}</div><div class="k">${SHORT[d]}</div></button>`).join("")}</div>
+    ${filter ? `<div class="secttl"><span>「${SHORT[filter]}」で絞り込み中</span><button id="clr">解除</button></div>` : ""}
+    ${rs.length ? sec("シグナルあり", sigs) + sec("様子見", holds) || `<div class="empty">該当なし</div>` : `<div class="empty">まだ判定結果がありません</div>`}
+    <div class="btns"><button class="btn" id="go-tickers">銘柄の追加・削除</button><button class="btn" id="go-run">今すぐ判定</button></div>
+    <div class="links">${links}</div>`;
+  $("#go-tickers").onclick = openTickers;
+  $("#go-run").onclick = runNow;
+
+  document.querySelectorAll(".sum button").forEach(b => b.onclick = () => { filter = filter===b.dataset.d ? null : b.dataset.d; render(); });
+  $("#clr") && ($("#clr").onclick = () => { filter = null; render(); });
+  document.querySelectorAll(".card[data-code]").forEach(c => c.onclick = () => openDetail(c.dataset.code));
+}
+
+function card(r) {
+  const side = r.decision.includes("BUY") ? "sig-buy" : r.decision.includes("SELL") ? "sig-sell" : "";
+  const changed = r.prev_decision && r.prev_decision !== r.decision;
+  const chips = (r.breakdown||[]).filter(b=>!b.label.startsWith("75日線"))
+    .map(b=>`<span class="chip ${b.points>0?"p":"m"}">${esc(b.label)}</span>`).join("");
+  return `<button class="card ${side}" data-code="${esc(r.code)}">
+    <div class="r1"><span class="nm">${esc(r.name)}<span class="cd num">${esc(r.code.replace(".T",""))}</span>${heldCodes.has(r.code)?`<span class="own">保有</span>`:""}</span>
+      ${changed?`<span class="changed">${esc(SHORT[r.prev_decision]||r.prev_decision)}→</span>`:""}
+      <span class="badge b-${cls(r.decision)}">${SHORT[r.decision]}</span></div>
+    <div class="r2">
+      <div><div class="px num">${pxFmt(r.close)}</div><div class="chg num ${r.change_pct>=0?"up":"down"}">${sgn(r.change_pct,2)}%</div></div>
+      <div class="sc"><span class="l">スコア</span><span class="n num">${sgn(r.score)}</span>${scoreBar(r.score)}</div>
+    </div>
+    ${chips?`<div class="chips">${chips}</div>`:""}
+  </button>`;
+}
+
+// ------------------------------------------------------------ 履歴
+function renderHist() {
+  const H = S.history || [];
+  if (!H.length) { $("#tab-hist").innerHTML = `<div class="empty">履歴はまだありません</div>`; return; }
+  const by = {};
+  H.forEach(h => (by[h.date] ||= []).push(h));
+  const days = Object.keys(by).sort().reverse();
+  $("#tab-hist").innerHTML = `
+    <label class="toggle"><input type="checkbox" id="showHold" ${showHold?"checked":""}> 様子見（HOLD）も表示</label>
+    ${days.map(d => {
+      const rows = by[d].sort((a,b)=>b.score-a.score);
+      const buy = rows.filter(r=>r.decision.includes("BUY")).length, sell = rows.filter(r=>r.decision.includes("SELL")).length;
+      const shown = showHold ? rows : rows.filter(r=>r.decision!=="HOLD");
+      const prov = rows.some(r=>r.intraday);
+      return `<div class="day"><h3>${md(d)}${prov?`<span class="prov">暫定</span>`:""}<span class="sp"></span>
+        ${buy?`<span class="cnt up">買い${buy}</span>`:""}${sell?`<span class="cnt down">売り${sell}</span>`:""}${!buy&&!sell?`<span class="cnt muted">シグナルなし</span>`:""}</h3>
+        ${shown.map(r=>`<div class="hrow"><span class="nm">${esc(r.name)}</span><span class="badge b-${cls(r.decision)}">${SHORT[r.decision]}</span>
+          <span class="n num">${sgn(r.score)}</span><span class="n num ${r.change_pct>=0?"up":"down"}">${sgn(r.change_pct,1)}%</span></div>`).join("")}
+      </div>`;
+    }).join("")}`;
+  $("#showHold").onchange = e => { showHold = e.target.checked; renderHist(); };
+}
+
+// ------------------------------------------------------------ 成績
+function renderPerf() {
+  const R = S.bt_rules, M = S.bt_monthly || [], meta = S.bt_meta;
+  if (!R || !R.length) {
+    $("#tab-perf").innerHTML = paperHTML() + `<div class="secttl"><span>バックテスト</span></div><div class="note">バックテスト結果はまだありません。毎週土曜に自動で計算されます。</div>`;
+    bindPaper();
+    return;
+  }
+  const key = r => `${r.Score_Threshold}-${r.Holding_Period}`;
+  const mon = Object.fromEntries(M.map(m=>[key(m), m]));
+  const rows = R.slice().sort((a,b)=>b.Total_PnL_Yen - a.Total_PnL_Yen);
+  const yr = meta && /-01-01$/.test(meta.start) && meta.end === `${+meta.start.slice(0,4)+1}-01-01` ? `${meta.start.slice(0,4)}年` : null;
+  const metaTxt = meta ? `${yr || `${esc(meta.start)}〜${esc(meta.end || "現在")}`}・1回${meta.shares}株${meta.cost_pct?`・コスト${meta.cost_pct}%`:""}・${esc(meta.generated_at)}計算` : "";
+  $("#tab-perf").innerHTML = paperHTML() + `
+    <div class="secttl"><span>バックテスト（過去データでの検証）</span></div>
+    <div class="note">シグナル翌日の始値で買い、決めた日数後の終値で売った場合の結果です。${metaTxt}</div>
+    ${rows.map(r => {
+      const m = mon[key(r)], k = key(r);
+      const months = m ? Object.keys(m).filter(c=>/^\d{4}-\d{2}$/.test(c)).sort() : [];
+      return `<button class="rule" data-k="${k}">
+        <div class="t">スコア${r.Score_Threshold}以上・${r.Holding_Period}日保有<span class="sp"></span>${r.Total_Trades<20?`<span class="small-tag">回数少</span>`:""}</div>
+        <div class="big num ${r.Total_PnL_Yen>=0?"up":"down"}">${man(r.Total_PnL_Yen)}<span class="muted" style="font-size:12px;font-weight:400"> 総損益</span></div>
+        <div class="grid">
+          <div><span>月平均</span><b class="num">${m ? man(m["月平均"]) : "—"}</b></div>
+          <div><span>勝率</span><b class="num">${fmt(r["Win_Rate (%)"],1)}%</b></div>
+          <div><span>取引回数</span><b class="num">${r.Total_Trades}回</b></div>
+          <div><span>PF</span><b class="num">${r.Profit_Factor==null?"—":fmt(r.Profit_Factor,2)}</b></div>
+          <div><span>最大の負け</span><b class="num">${man(r.Max_Loss_Yen)}</b></div>
+          <div><span>必要資金</span><b class="num">${man(r.Max_Capital_Yen).replace("+","")}</b></div>
+        </div>
+        ${openRule===k && months.length ? `<div class="months">${monthBars(months, months.map(c=>m[c]))}</div>` : ""}
+      </button>`;
+    }).join("")}
+    <div class="note">「回数少」は取引が20回未満で、たまたまの結果の可能性が高いものです。カードを押すと月別の損益を表示します。</div>`;
+  document.querySelectorAll(".rule[data-k]").forEach(b => b.onclick = () => { openRule = openRule===b.dataset.k ? null : b.dataset.k; renderPerf(); });
+  bindPaper();
+}
+
+function monthBars(labels, vals) {
+  const W = 340, H = 130, top = 14, bot = 22, m = Math.max(1, ...vals.map(v=>Math.abs(v)));
+  const y0 = top + (H-top-bot)/2, k = (H-top-bot)/2/m, step = W/labels.length, bw = Math.min(22, step*.6);
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="月別損益">
+    <line x1="0" x2="${W}" y1="${y0}" y2="${y0}" stroke="var(--sub)" opacity=".4"/>
+    ${vals.map((v,i)=>{ const x = step*i + (step-bw)/2, h = Math.abs(v)*k;
+      return `<rect x="${x}" y="${v>=0?y0-h:y0}" width="${bw}" height="${Math.max(h,.5)}" rx="2" fill="${v>=0?"var(--buy)":"var(--sell)"}"/>
+        ${Math.abs(v)>=m*.35?`<text x="${x+bw/2}" y="${v>=0?y0-h-3:y0+h+10}" font-size="9" text-anchor="middle" fill="var(--sub)">${(v/10000).toFixed(1)}</text>`:""}
+        <text x="${x+bw/2}" y="${H-6}" font-size="9" text-anchor="middle" fill="var(--sub)">${+labels[i].slice(5)}月</text>`; }).join("")}
+  </svg><div class="legend">単位: 万円</div>`;
+}
+
+// ------------------------------------------------------------ 詳細
+function openDetail(code) {
+  const r = results().find(x=>x.code===code); if (!r) return;
+  const sub = `${r.code} ・ ${md(r.date)} ${r.intraday ? `場中・暫定（${(S.latest.generated_at||"").slice(-5)}時点）` : "終値"}`;
+  const bd = (r.breakdown||[]).map(b=>`<tr><td>${esc(b.label)}</td><td class="num ${b.points>0?"up":"down"}">${sgn(b.points)}</td></tr>`).join("")
+    || `<tr><td colspan="2" class="muted">該当なし</td></tr>`;
+  const bt = (S.backtest||{})[code] || [];
+  let btHTML = `<div class="muted" style="font-size:13px">データなし</div>`;
+  if (bt.length) {
+    const holds = [...new Set(bt.map(x=>x.hold))].sort((a,b)=>a-b), ths = [...new Set(bt.map(x=>x.threshold))].sort();
+    btHTML = `<table class="t"><tr><th></th>${holds.map(h=>`<th>${h}日</th>`).join("")}</tr>${ths.map(th=>`<tr><td>≥${th}</td>${holds.map(h=>{
+      const x = bt.find(b=>b.threshold===th&&b.hold===h); if (!x) return "<td>—</td>";
+      return `<td class="num"><b class="${x.win_rate>=60&&x.trades>=10?"up":""}">${fmt(x.win_rate)}%</b>${x.pnl!=null?`<br><span class="${x.pnl>=0?"up":"down"}" style="font-size:11px">${man(x.pnl)}</span>`:""}<br><span class="muted" style="font-size:10px">${x.trades}回</span></td>`;
+    }).join("")}</tr>`).join("")}</table>`;
+  }
+  const mine = openTrades().filter(t=>t.code===code);
+  openSheet(r.name, sub, `
+    ${mine.map(t=>`<button class="box pcard" data-id="${esc(t.id)}" style="display:block;width:100%;text-align:left"><h4>保有中</h4>${posLine(t)}</button>`).join("")}
+    <div class="hero"><div><div class="px num">${pxFmt(r.close)}</div><div class="chg num ${r.change_pct>=0?"up":"down"}">${sgn(r.change_pct,2)}%</div></div>
+      <div style="flex:1"></div><div style="text-align:right"><span class="badge b-${cls(r.decision)}">${SHORT[r.decision]}</span><div class="num" style="font-size:20px;font-weight:700;margin-top:4px">${sgn(r.score)}</div></div></div>
+    <div class="box"><h4>日足（直近60日）</h4>${candleSVG(r, 60)}
+      <div class="legend"><span><i style="background:#d08a2e"></i>25日線</span><span><i style="background:#7a52b3"></i>75日線</span><span>▲買い ▼売り</span></div></div>
+    <div class="box"><h4>日々のスコア</h4>${scoreSVG(r, 60)}</div>
+    <div class="box"><h4>今日のスコア内訳</h4><table class="t">${bd}<tr><th>合計</th><th class="num">${sgn(r.score)}</th></tr></table></div>
+    <div class="box"><h4>指標</h4><div class="kv">
+      <div><span>RSI(14)</span><b class="num">${fmt(r.rsi,1)}</b></div>
+      <div><span>25日線乖離</span><b class="num">${sgn(r.sma25_gap,1)}%</b></div>
+      <div><span>75日線乖離</span><b class="num">${sgn(r.sma75_gap,1)}%</b></div></div></div>
+    <div class="box"><h4>過去の成績（スコア条件 × 保有日数）</h4>${btHTML}</div>
+    <button class="btn block" id="d-buy">この銘柄の買いを記録</button>`, body => {
+      body.querySelectorAll(".pcard").forEach(b => b.onclick = () => openPosition(b.dataset.id));
+      $("#d-buy").onclick = () => openBuyForm(null, code);
+    });
+}
+
+// ------------------------------------------------------------ 共通シート
+function openSheet(title, sub, html, mount) {
+  $("#sh-title").textContent = title; $("#sh-sub").textContent = sub || "";
+  $("#sh-body").innerHTML = html;
+  $("#sheet").scrollTop = 0;
+  if (!$("#sheet").classList.contains("open")) history.pushState({sheet: 1}, "");
+  $("#sheet").classList.add("open"); $("#sheet").setAttribute("aria-hidden","false");
+  mount && mount($("#sh-body"));
+}
+function closeSheet() { if ($("#sheet").classList.contains("open")) history.back(); }
+$("#back").onclick = () => history.back();
+window.addEventListener("popstate", () => {   // Android の戻る操作で閉じる
+  $("#sheet").classList.remove("open"); $("#sheet").setAttribute("aria-hidden","true");
+});
+
+let toastTimer;
+function toast(msg, err) {
+  const t = $("#toast"); t.textContent = msg; t.className = "toast" + (err ? " err" : ""); t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, err ? 6000 : 3500);
+}
+
+// ============================================================ GitHub 連携
+// トークンはこのスマホのブラウザにだけ保存し、api.github.com 以外には送らない
+const pn = v => v == null || isNaN(v) ? "muted" : v > 0 ? "up" : v < 0 ? "down" : "muted";
+const b64enc = s => { const u = new TextEncoder().encode(s); let b = "";
+  for (let i = 0; i < u.length; i += 0x8000) b += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+  return btoa(b); };
+const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, "")), c => c.charCodeAt(0)));
+const autoRepo = () => { const h = location.hostname; if (!h.endsWith(".github.io")) return null;
+  return {owner: h.split(".")[0], name: location.pathname.split("/")[1] || h}; };
+
+function ghMsg(status, msg) {
+  if (status === 401) return "トークンが無効か期限切れです。設定で入れ直してください";
+  if (status === 403) return "権限がありません。トークンの権限（Contents・Actions の Read and write）を確認してください";
+  if (status === 404) return "リポジトリが見つかりません。名前と、トークンの対象リポジトリを確認してください";
+  return `GitHub エラー ${status}${msg ? "：" + msg : ""}`;
+}
+
+const GH = {
+  cfg() {
+    let c = {}; try { c = JSON.parse(localStorage.getItem("gh") || "{}"); } catch {}
+    const a = autoRepo();
+    return {owner: a?.owner || "", pub: a?.name || "", priv: "stock-private", token: "", ...c};
+  },
+  set(c) { try { localStorage.setItem("gh", JSON.stringify(c)); } catch {} },
+  clear() { try { localStorage.removeItem("gh"); localStorage.removeItem("tradesCache"); } catch {} },
+  ready() { const c = this.cfg(); return !!(c.token && c.owner && c.pub && c.priv); },
+  async api(method, path, body) {
+    const c = this.cfg();
+    let r;
+    try {
+      r = await fetch("https://api.github.com" + path, {method, cache: "no-store",
+        headers: {"Authorization": "Bearer " + c.token, "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28", ...(body ? {"Content-Type": "application/json"} : {})},
+        body: body ? JSON.stringify(body) : undefined});
+    } catch { const e = new Error("通信できませんでした。電波の状態を確認してください"); e.status = 0; throw e; }
+    if (r.status === 204) return null;
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { const e = new Error(ghMsg(r.status, j.message)); e.status = r.status; throw e; }
+    return j;
+  },
+  async get(repoName, path) {
+    try {
+      const j = await this.api("GET", `/repos/${this.cfg().owner}/${repoName}/contents/${path}`);
+      return {data: JSON.parse(b64dec(j.content)), sha: j.sha};
+    } catch (e) { if (e.status === 404) return {data: null, sha: null}; throw e; }
+  },
+  async put(repoName, path, data, sha, message) {
+    return this.api("PUT", `/repos/${this.cfg().owner}/${repoName}/contents/${path}`,
+      {message, content: b64enc(JSON.stringify(data, null, 2) + "\n"), ...(sha ? {sha} : {})});
+  },
+  // 最新を読む → 変更 → 書く。同時に別の更新があったら1回だけやり直す
+  async edit(repoName, path, fn, message, init) {
+    for (let i = 0; i < 2; i++) {
+      const {data, sha} = await this.get(repoName, path);
+      const next = fn(structuredClone(data ?? init));
+      try { await this.put(repoName, path, next, sha, message); return next; }
+      catch (e) { if (i || (e.status !== 409 && e.status !== 422)) throw e; }
+    }
+  },
+};
+
+const needSetup = what => `<div class="box"><h4>GitHub との接続が必要です</h4>
+  <p class="help">${what}には、最初に一度だけ GitHub のアクセストークンを設定します。</p>
+  <button class="btn primary block" onclick="openSettings()">設定を開く</button></div>`;
+
+// ------------------------------------------------------------ 設定
+function openSettings() {
+  const c = GH.cfg(), ts = tset();
+  openSheet("設定", "このスマホにだけ保存されます", `
+    <div class="box"><h4>GitHub との接続</h4>
+      <p class="help">銘柄の追加・削除と、売買記録の保存に使います。トークンの作り方は手順書（SETUP_MOBILE.md）の「5」を見てください。</p>
+      <label class="fld"><span>アクセストークン</span><input id="s-token" type="password" autocomplete="off" spellcheck="false" value="${esc(c.token)}" placeholder="github_pat_…"></label>
+      <label class="fld"><span>GitHub のユーザー名</span><input id="s-owner" autocapitalize="off" spellcheck="false" value="${esc(c.owner)}"></label>
+      <div class="fld2">
+        <label class="fld"><span>公開リポジトリ（判定）</span><input id="s-pub" autocapitalize="off" spellcheck="false" value="${esc(c.pub)}"></label>
+        <label class="fld"><span>非公開リポジトリ（売買記録）</span><input id="s-priv" autocapitalize="off" spellcheck="false" value="${esc(c.priv)}"></label>
+      </div>
+      <button class="btn primary block" id="s-save">保存して接続を確認</button>
+      <div class="msg" id="s-msg"></div>
+    </div>
+    <div class="box"><h4>目標と売りの目安</h4>
+      <p class="help">売買記録と一緒に非公開リポジトリへ保存されます。</p>
+      <label class="fld"><span>1か月の目標利益（円）</span><input id="s-goal" inputmode="numeric" value="${ts.goal_monthly}"></label>
+      <div class="fld2">
+        <label class="fld"><span>利益確定の目安（%）</span><input id="s-tp" inputmode="decimal" value="${ts.take_profit_pct}"></label>
+        <label class="fld"><span>損切りの目安（%）</span><input id="s-sl" inputmode="decimal" value="${ts.stop_loss_pct}"></label>
+      </div>
+      <label class="fld"><span>1回の売買手数料（円・初期値）</span><input id="s-fee" inputmode="numeric" value="${ts.fee}"></label>
+      <button class="btn block" id="s-save2" ${GH.ready() ? "" : "disabled"}>保存</button>
+      <div class="msg" id="s-msg2"></div>
+    </div>
+    <button class="btn danger block" id="s-clear">このスマホから接続情報を消す</button>`, () => {
+    $("#s-save").onclick = async () => {
+      const v = id => $(id).value.trim();
+      GH.set({token: v("#s-token"), owner: v("#s-owner"), pub: v("#s-pub"), priv: v("#s-priv")});
+      const m = $("#s-msg"); m.className = "msg"; m.textContent = "確認しています…";
+      try {
+        const c = GH.cfg();
+        const pub = await GH.api("GET", `/repos/${c.owner}/${c.pub}`);
+        const priv = await GH.api("GET", `/repos/${c.owner}/${c.priv}`);
+        if (!priv.private) throw new Error(`「${c.priv}」が公開になっています。売買記録が誰でも見られるので、非公開に変更してください`);
+        m.className = "msg ok"; m.textContent = `接続できました（${pub.full_name} / ${priv.full_name}）`;
+        $("#s-save2").disabled = false;
+        loadTrades();
+      } catch (e) { m.className = "msg err"; m.textContent = e.message; }
+    };
+    $("#s-save2").onclick = async () => {
+      const num = (id, d) => { const x = parseFloat($(id).value.replace(/[,，]/g, "")); return isNaN(x) ? d : x; };
+      const st = {goal_monthly: num("#s-goal", 50000), take_profit_pct: num("#s-tp", 10),
+                  stop_loss_pct: -Math.abs(num("#s-sl", 5)), fee: num("#s-fee", 0)};
+      const m = $("#s-msg2"); m.className = "msg"; m.textContent = "保存しています…";
+      try {
+        T = await GH.edit(GH.cfg().priv, "trades.json", d => (d.settings = st, d), "設定を変更", EMPTY_BOOK);
+        cacheT(); render(); m.className = "msg ok"; m.textContent = "保存しました";
+        $("#s-sl").value = st.stop_loss_pct;
+      } catch (e) { m.className = "msg err"; m.textContent = e.message; }
+    };
+    $("#s-clear").onclick = () => {
+      if (!confirm("このスマホに保存したトークンと売買記録のコピーを消します。GitHub 上の記録は消えません。")) return;
+      GH.clear(); T = null; Tstate = "nosetup"; closeSheet(); render(); toast("接続情報を消しました");
+    };
+  });
+}
+
+// ------------------------------------------------------------ 銘柄の管理
+const normCode = s => { let c = (s || "").normalize("NFKC").trim().toUpperCase().replace(/\s/g, "");
+  if (/^[0-9A-Z]{4}$/.test(c)) c += ".T"; return c; };
+
+function openTickers() {
+  const draw = () => {
+    const done = new Set((S.latest.results || []).map(r => r.code));
+    $("#t-list").innerHTML = (S.tickers || []).map(t => `
+      <div class="trow ${t.enabled === false ? "off" : ""}" data-code="${esc(t.code)}">
+        <input type="checkbox" ${t.enabled === false ? "" : "checked"} aria-label="判定対象にする">
+        <div>${esc(t.name || t.code)}${!done.has(t.code) && t.enabled !== false ? `<span class="pend">判定待ち</span>` : ""}<small class="num">${esc(t.code)}${t.memo ? " ・ " + esc(t.memo) : ""}</small></div>
+        <span></span>
+        <button class="x" aria-label="削除">✕</button>
+      </div>`).join("") || `<div class="muted">銘柄がありません</div>`;
+    $("#t-list").querySelectorAll(".trow").forEach(row => {
+      const code = row.dataset.code, t = S.tickers.find(x => x.code === code);
+      row.querySelector("input").onchange = e => saveTickers(l => l.map(x => x.code === code ? {...x, enabled: e.target.checked} : x),
+        `${e.target.checked ? "再開" : "一時停止"}: ${code}`, e.target.checked ? `${t.name} の判定を再開します` : `${t.name} を一時停止しました`);
+      row.querySelector(".x").onclick = () => confirm(`${t.name || code}（${code}）を一覧から削除しますか？`) &&
+        saveTickers(l => l.filter(x => x.code !== code), `削除: ${code}`, `${t.name} を削除しました`);
+    });
+  };
+  openSheet("銘柄の追加・削除", "変更は2〜3分後の再判定で反映されます", `
+    ${GH.ready() ? "" : needSetup("スマホから銘柄を追加・削除する")}
+    <form class="box" id="t-add" autocomplete="off"><h4>銘柄を追加</h4>
+      <div class="fld2"><input id="t-code" placeholder="コード 例: 7203" autocapitalize="characters" spellcheck="false" required>
+        <input id="t-name" placeholder="銘柄名"></div>
+      <label class="fld"><span>メモ（任意）</span><input id="t-memo" placeholder="例: 決算後に注目"></label>
+      <button class="btn primary block" ${GH.ready() ? "" : "disabled"}>追加する</button>
+      <div class="msg" id="t-msg"></div>
+    </form>
+    <div class="box"><h4>登録中の銘柄（チェックを外すと一時停止）</h4><div id="t-list"></div></div>`, () => {
+    draw();
+    window._drawTickers = draw;
+    $("#t-add").onsubmit = async e => {
+      e.preventDefault();
+      const code = normCode($("#t-code").value), name = $("#t-name").value.trim() || code.replace(".T", ""), memo = $("#t-memo").value.trim();
+      const m = $("#t-msg"); m.className = "msg err";
+      if (!/^[0-9A-Z]{4}\.T$|^\^?[A-Z0-9.=\-]{1,15}$/.test(code)) return m.textContent = "コードの形式が正しくありません（例: 7203）";
+      if ((S.tickers || []).some(t => t.code === code)) return m.textContent = `${code} はすでに登録されています`;
+      e.submitter && (e.submitter.disabled = true);
+      const ok = await saveTickers(l => l.some(t => t.code === code) ? l : [...l, {code, name, enabled: true, memo}],
+        `追加: ${code} ${name}`, `${name} を追加しました。2〜3分後に判定結果が出ます`);
+      e.submitter && (e.submitter.disabled = false);
+      if (ok) { e.target.reset(); m.textContent = ""; }
+    };
+  });
+}
+
+async function saveTickers(fn, message, okMsg) {
+  try {
+    S.tickers = await GH.edit(GH.cfg().pub, "config/tickers.json", d => fn(d || []), message, []);
+    render(); window._drawTickers && $("#t-list") && window._drawTickers();
+    toast(okMsg); return true;
+  } catch (e) { toast(e.message, true); window._drawTickers && $("#t-list") && window._drawTickers(); return false; }
+}
+
+async function runNow() {
+  if (!GH.ready()) { if (repo) location.href = `${repo}/actions/workflows/daily.yml`; else openSettings(); return; }
+  if (!confirm("今すぐ判定を実行しますか？（2〜3分かかります）")) return;
+  try {
+    const c = GH.cfg();
+    await GH.api("POST", `/repos/${c.owner}/${c.pub}/actions/workflows/daily.yml/dispatches`, {ref: "main"});
+    toast("判定を開始しました。3分ほどで自動的に更新します");
+    setTimeout(load, 180e3);
+  } catch (e) { toast(e.message, true); }
+}
+
+// ============================================================ 自分の売買記録（非公開リポジトリ）
+const EMPTY_BOOK = {version: 1, settings: {goal_monthly: 50000, take_profit_pct: 10, stop_loss_pct: -5, fee: 0}, trades: []};
+let T = null, Tstate = "idle", Terr = "";
+try { T = JSON.parse(localStorage.getItem("tradesCache") || "null"); } catch {}
+const cacheT = () => { try { localStorage.setItem("tradesCache", JSON.stringify(T)); } catch {} };
+const tset = () => ({...EMPTY_BOOK.settings, ...(T?.settings || {})});
+const openTrades = () => (T?.trades || []).filter(t => !t.sell_date);
+const priceOf = code => (S?.latest?.results || []).find(r => r.code === code);
+const realized = t => (t.sell_price - t.buy_price) * t.shares - (t.buy_fee || 0) - (t.sell_fee || 0);
+const todayJ = () => jstNow().toISOString().slice(0, 10);
+const thisMonth = () => todayJ().slice(0, 7);
+const nameOf = code => (S?.tickers || []).find(t => t.code === code)?.name || code.replace(".T", "");
+function bizDays(from, to) {   // from の翌日から to までの平日の数
+  let n = 0, d = new Date(from + "T00:00:00Z"); const e = new Date(to + "T00:00:00Z");
+  while (d < e) { d.setUTCDate(d.getUTCDate() + 1); const w = d.getUTCDay(); if (w && w < 6) n++; }
+  return n;
+}
+function posInfo(t) {
+  const r = priceOf(t.code), st = tset(), days = bizDays(t.buy_date, todayJ());
+  const info = {r, days, tags: []};
+  if (r) {
+    info.price = r.close;
+    info.pnl = (r.close - t.buy_price) * t.shares - (t.buy_fee || 0);
+    info.pct = (r.close / t.buy_price - 1) * 100;
+    if (info.pct >= st.take_profit_pct) info.tags.push(["tp", `利確の目安（+${st.take_profit_pct}%）`]);
+    if (info.pct <= st.stop_loss_pct) info.tags.push(["sl", `損切りの目安（${st.stop_loss_pct}%）`]);
+    if (r.decision.includes("SELL")) info.tags.push(["sig", `${SHORT[r.decision]}シグナル`]);
+  } else info.tags.push(["na", "現在値なし（監視銘柄に追加すると表示）"]);
+  if (t.plan_days && days >= t.plan_days) info.tags.push(["sig", `予定の${t.plan_days}日を経過`]);
+  return info;
+}
+function posLine(t) {
+  const i = posInfo(t);
+  return `<div class="r2" style="margin-top:0">
+      <div><div class="num" style="font-size:13px;color:var(--sub)">${fmt(t.shares)}株 × ${pxFmt(t.buy_price)} → ${i.r ? pxFmt(i.price) : "—"}</div>
+        <div class="num" style="font-size:12px;color:var(--sub)">${md(t.buy_date)} 買い ・ ${i.days}営業日目</div></div>
+      <div class="sc"><div class="n num ${pn(i.pnl)}">${i.r ? sgn(i.pnl, 0) + "円" : "—"}</div>
+        <div class="num ${pn(i.pct)}" style="font-size:12px">${i.r ? sgn(i.pct, 1) + "%" : ""}</div></div>
+    </div>${i.tags.length ? `<div class="tags">${i.tags.map(([k, v]) => `<span class="tag ${k}">${esc(v)}</span>`).join("")}</div>` : ""}`;
+}
+
+async function loadTrades() {
+  if (!GH.ready()) { Tstate = "nosetup"; render(); return; }
+  Tstate = "loading"; if (S) renderHold();
+  try {
+    const {data} = await GH.get(GH.cfg().priv, "trades.json");
+    T = data || structuredClone(EMPTY_BOOK); T.trades ||= []; Tstate = "ok"; cacheT();
+  } catch (e) { Tstate = "error"; Terr = e.message; }
+  if (S) render();
+}
+
+async function saveBook(fn, message, okMsg) {
+  try {
+    T = await GH.edit(GH.cfg().priv, "trades.json", d => { d.trades ||= []; return fn(d); }, message, EMPTY_BOOK);
+    cacheT(); render(); toast(okMsg); return true;
+  } catch (e) { toast(e.message, true); return false; }
+}
+
+function renderHold() {
+  const el = $("#tab-hold");
+  if (!GH.ready() && !T) { el.innerHTML = needSetup("自分の売買を記録して損益を見る"); return; }
+  if (!T) { el.innerHTML = Tstate === "error" ? `<div class="banner"><b>読み込めませんでした</b>${esc(Terr)}</div>` : `<div class="empty">読み込み中…</div>`; return; }
+
+  const st = tset(), month = thisMonth(), year = month.slice(0, 4);
+  const opens = openTrades().map(t => ({t, i: posInfo(t)}));
+  opens.sort((a, b) => (b.i.tags.filter(x => x[0] !== "na").length - a.i.tags.filter(x => x[0] !== "na").length) || ((b.i.pnl ?? -1e12) - (a.i.pnl ?? -1e12)));
+  const closed = (T.trades || []).filter(t => t.sell_date).sort((a, b) => b.sell_date.localeCompare(a.sell_date));
+  const mSum = closed.filter(t => t.sell_date.startsWith(month)).reduce((s, t) => s + realized(t), 0);
+  const ySum = closed.filter(t => t.sell_date.startsWith(year)).reduce((s, t) => s + realized(t), 0);
+  const unreal = opens.reduce((s, o) => s + (o.i.pnl || 0), 0);
+  const prog = Math.max(0, Math.min(100, mSum / st.goal_monthly * 100));
+  const left = st.goal_monthly - mSum;
+
+  const byMonth = {};
+  closed.forEach(t => (byMonth[t.sell_date.slice(0, 7)] ||= []).push(t));
+  const months = Object.keys(byMonth).sort().reverse().slice(0, 6);
+  const barMonths = months.slice().reverse();
+
+  el.innerHTML = `
+    ${Tstate === "error" ? `<div class="banner"><b>最新の記録を読み込めませんでした</b>${esc(Terr)}（前回の内容を表示中）</div>` : ""}
+    <div class="goal">
+      <div class="lbl">${+month.slice(5)}月の確定利益</div>
+      <div class="big num ${pn(mSum)}">${sgn(mSum, 0)}円<span class="of">/ 目標 ${fmt(st.goal_monthly)}円</span></div>
+      <div class="prog"><i style="width:${prog}%"></i></div>
+      <div class="help" style="margin:0">${left > 0 ? `目標まであと <b class="num">${fmt(left)}円</b>` : `<b class="up">今月の目標を達成しました</b>`}</div>
+      <div class="sub"><div>含み損益（${opens.length}銘柄）<b class="num ${pn(unreal)}">${sgn(unreal, 0)}円</b></div>
+        <div>${year}年の確定利益<b class="num ${pn(ySum)}">${sgn(ySum, 0)}円</b></div></div>
+    </div>
+    <button class="btn primary block" id="h-buy">＋ 買いを記録</button>
+    <div class="secttl"><span>保有中</span><span>${opens.length}銘柄</span></div>
+    ${opens.map(({t}) => `<button class="card pcard" data-id="${esc(t.id)}">
+        <div class="r1"><span class="nm">${esc(t.name || nameOf(t.code))}<span class="cd num">${esc(t.code.replace(".T", ""))}</span></span>
+          ${priceOf(t.code) ? `<span class="badge b-${cls(priceOf(t.code).decision)}">${SHORT[priceOf(t.code).decision]}</span>` : ""}</div>
+        <div style="margin-top:8px">${posLine(t)}</div></button>`).join("") || `<div class="note">保有中の銘柄はありません。</div>`}
+    ${months.length ? `<div class="secttl"><span>売却済み</span><span>確定損益</span></div>
+      <div class="box">${barMonths.length > 1 ? monthBars(barMonths, barMonths.map(m => byMonth[m].reduce((s, t) => s + realized(t), 0))) : ""}
+      ${months.map(m => `<div class="mhead"><span>${m.slice(0, 4)}年${+m.slice(5)}月</span><span class="num ${pn(byMonth[m].reduce((s, t) => s + realized(t), 0))}">${sgn(byMonth[m].reduce((s, t) => s + realized(t), 0), 0)}円</span></div>
+        <div class="plist">${byMonth[m].map(t => `<div class="pr pcard" data-id="${esc(t.id)}"><span>${esc(t.name || nameOf(t.code))}<br><small class="num">${md(t.buy_date)}→${md(t.sell_date)} ・ ${fmt(t.shares)}株</small></span>
+          <span class="v num ${pn(realized(t))}">${sgn(realized(t), 0)}円<br><small class="num">${sgn((t.sell_price / t.buy_price - 1) * 100, 1)}%</small></span></div>`).join("")}</div>`).join("")}</div>` : ""}
+    <p class="note">現在値は判定時点の株価（場中は約20分遅れ）です。売買記録は非公開リポジトリ「${esc(GH.cfg().priv)}」に保存されます。</p>`;
+  $("#h-buy").onclick = () => openBuyForm();
+  el.querySelectorAll(".pcard").forEach(b => b.onclick = () => openPosition(b.dataset.id));
+}
+
+function openBuyForm(id, presetCode) {
+  if (!GH.ready()) return openSettings();
+  const t = id ? T.trades.find(x => x.id === id) : null, st = tset();
+  const code0 = t?.code || presetCode || "";
+  openSheet(t ? "買い記録を編集" : "買いを記録", "非公開リポジトリに保存されます", `
+    <form class="box" id="b-form" autocomplete="off">
+      <datalist id="b-codes">${(S.tickers || []).map(x => `<option value="${esc(x.code.replace(".T", ""))}">${esc(x.name)}</option>`).join("")}</datalist>
+      <div class="fld2">
+        <label class="fld"><span>銘柄コード</span><input id="b-code" list="b-codes" required value="${esc(code0.replace(".T", ""))}" autocapitalize="characters" spellcheck="false"></label>
+        <label class="fld"><span>銘柄名</span><input id="b-name" value="${esc(t?.name || (code0 ? nameOf(code0) : ""))}"></label>
+      </div>
+      <div class="fld2">
+        <label class="fld"><span>買った日</span><input id="b-date" type="date" required value="${t?.buy_date || todayJ()}"></label>
+        <label class="fld"><span>株数</span><input id="b-shares" inputmode="numeric" required value="${t?.shares ?? 100}"></label>
+      </div>
+      <div class="fld2">
+        <label class="fld"><span>買値（1株・円）</span><input id="b-price" inputmode="decimal" required value="${t?.buy_price ?? ""}" placeholder="${code0 && priceOf(code0) ? priceOf(code0).close : ""}"></label>
+        <label class="fld"><span>手数料（円）</span><input id="b-fee" inputmode="numeric" value="${t?.buy_fee ?? st.fee}"></label>
+      </div>
+      <label class="fld"><span>保有予定の日数（任意・営業日）</span><input id="b-plan" inputmode="numeric" value="${t?.plan_days ?? ""}" placeholder="例: 25"></label>
+      <label class="fld"><span>メモ（任意）</span><textarea id="b-memo" placeholder="買った理由など">${esc(t?.memo || "")}</textarea></label>
+      <label class="toggle" id="b-watch-w" hidden><input type="checkbox" id="b-watch" checked> 監視銘柄にも追加する（現在値と判定を表示するため）</label>
+      <button class="btn primary block">${t ? "変更を保存" : "記録する"}</button>
+      <div class="msg err" id="b-msg"></div>
+    </form>`, () => {
+    const sync = () => {
+      const c = normCode($("#b-code").value), r = priceOf(c), known = (S.tickers || []).some(x => x.code === c);
+      if (!$("#b-name").value || $("#b-name").dataset.auto) { const n = known ? nameOf(c) : ""; if (n) { $("#b-name").value = n; $("#b-name").dataset.auto = 1; } }
+      $("#b-price").placeholder = r ? `現在値 ${r.close}` : "";
+      $("#b-watch-w").hidden = !c || known;
+    };
+    $("#b-code").oninput = sync; sync();
+    $("#b-form").onsubmit = async e => {
+      e.preventDefault();
+      const num = id => parseFloat($(id).value.replace(/[,，]/g, ""));
+      const code = normCode($("#b-code").value), price = num("#b-price") || priceOf(code)?.close, shares = Math.round(num("#b-shares"));
+      if (!price || !(shares > 0)) return $("#b-msg").textContent = "買値と株数を入力してください";
+      const rec = {id: t?.id || `t${Date.now().toString(36)}`, code, name: $("#b-name").value.trim() || nameOf(code),
+        buy_date: $("#b-date").value, buy_price: price, shares, buy_fee: num("#b-fee") || 0,
+        plan_days: Math.round(num("#b-plan")) || null, memo: $("#b-memo").value.trim(),
+        ...(t?.sell_date ? {sell_date: t.sell_date, sell_price: t.sell_price, sell_fee: t.sell_fee} : {})};
+      e.submitter && (e.submitter.disabled = true);
+      const ok = await saveBook(d => { d.trades = t ? d.trades.map(x => x.id === t.id ? rec : x) : [...d.trades, rec]; return d; },
+        `${t ? "買い記録を修正" : "買い"}: ${code} ${shares}株`, t ? "変更を保存しました" : `${rec.name} の買いを記録しました`);
+      if (ok && !$("#b-watch-w").hidden && $("#b-watch").checked)
+        await saveTickers(l => l.some(x => x.code === code) ? l : [...l, {code, name: rec.name, enabled: true, memo: "保有銘柄"}],
+          `追加: ${code} ${rec.name}（保有）`, `${rec.name} を監視銘柄にも追加しました`);
+      if (ok) { closeSheet(); switchTab("hold"); } else e.submitter && (e.submitter.disabled = false);
+    };
+  });
+}
+
+function openPosition(id) {
+  const t = (T?.trades || []).find(x => x.id === id); if (!t) return;
+  const st = tset(), i = posInfo(t), r = i.r;
+  const sold = !!t.sell_date;
+  openSheet(t.name || nameOf(t.code), `${t.code} ・ ${sold ? "売却済み" : "保有中"}`, `
+    <div class="box">${sold ? `<div class="r2" style="margin-top:0"><div><div class="num" style="font-size:13px;color:var(--sub)">${fmt(t.shares)}株 × ${pxFmt(t.buy_price)} → ${pxFmt(t.sell_price)}</div>
+        <div class="num" style="font-size:12px;color:var(--sub)">${md(t.buy_date)} → ${md(t.sell_date)}</div></div>
+        <div class="sc"><div class="n num ${pn(realized(t))}">${sgn(realized(t), 0)}円</div></div></div>` : posLine(t)}
+      ${t.memo ? `<p class="help" style="margin-top:10px">メモ：${esc(t.memo)}</p>` : ""}
+      ${r ? `<p class="help" style="margin-top:6px">現在の判定：<span class="badge b-${cls(r.decision)}">${SHORT[r.decision]}</span> スコア ${sgn(r.score)}</p>` : ""}
+    </div>
+    ${sold ? "" : `<form class="box" id="s-form"><h4>売却を記録</h4>
+      <div class="fld2">
+        <label class="fld"><span>売った日</span><input id="x-date" type="date" required value="${todayJ()}"></label>
+        <label class="fld"><span>売値（1株・円）</span><input id="x-price" inputmode="decimal" required value="${r ? r.close : ""}"></label>
+      </div>
+      <label class="fld"><span>手数料（円）</span><input id="x-fee" inputmode="numeric" value="${st.fee}"></label>
+      <div class="help" id="x-prev"></div>
+      <button class="btn primary block">売却を記録する</button></form>`}
+    <div class="btns">${r ? `<button class="btn" id="p-chart">チャートを見る</button>` : ""}<button class="btn" id="p-edit">記録を編集</button></div>
+    <button class="btn danger block" id="p-del" style="margin-top:8px">この記録を削除</button>`, () => {
+    if (!sold) {
+      const prev = () => { const p = parseFloat($("#x-price").value), f = parseFloat($("#x-fee").value) || 0;
+        if (p) { const v = (p - t.buy_price) * t.shares - (t.buy_fee || 0) - f;
+          $("#x-prev").innerHTML = `確定損益の見込み：<b class="num ${pn(v)}">${sgn(v, 0)}円</b>（${sgn((p / t.buy_price - 1) * 100, 1)}%）`; } };
+      $("#x-price").oninput = prev; $("#x-fee").oninput = prev; prev();
+      $("#s-form").onsubmit = async e => {
+        e.preventDefault();
+        const p = parseFloat($("#x-price").value.replace(/[,，]/g, ""));
+        if (!p) return;
+        const rec = {...t, sell_date: $("#x-date").value, sell_price: p, sell_fee: parseFloat($("#x-fee").value) || 0};
+        e.submitter && (e.submitter.disabled = true);
+        const ok = await saveBook(d => (d.trades = d.trades.map(x => x.id === t.id ? rec : x), d),
+          `売り: ${t.code} ${t.shares}株`, `売却を記録しました（${sgn(realized(rec), 0)}円）`);
+        if (ok) closeSheet(); else e.submitter && (e.submitter.disabled = false);
+      };
+    }
+    $("#p-chart") && ($("#p-chart").onclick = () => openDetail(t.code));
+    $("#p-edit").onclick = () => openBuyForm(t.id);
+    $("#p-del").onclick = async () => {
+      if (!confirm("この売買記録を削除しますか？")) return;
+      if (await saveBook(d => (d.trades = d.trades.filter(x => x.id !== t.id), d), `記録を削除: ${t.code}`, "削除しました")) closeSheet();
+    };
+  });
+}
+
+// ============================================================ 紙上トレード
+function paperHTML() {
+  const P = S.paper; if (!P || !(P.rules || []).length) return "";
+  const pos = P.positions || [], cl = P.closed || [], month = thisMonth();
+  const started = [...pos, ...cl].map(x => x.entry_date).sort()[0];
+  const unrealOf = p => { const r = priceOf(p.code); return r ? (r.close - p.entry_price) * p.shares : null; };
+  return `<div class="secttl"><span>紙上トレード（自動記録）</span><span>${started ? md(started) + "から" : "まだ取引なし"}</span></div>
+    ${P.rules.map(rule => {
+      const c = cl.filter(x => x.rule === rule.id).sort((a, b) => (b.exit_date + b.exit_at).localeCompare(a.exit_date + a.exit_at));
+      const o = pos.filter(x => x.rule === rule.id);
+      const tot = c.reduce((s, x) => s + x.pnl, 0), mon = c.filter(x => x.exit_date.startsWith(month)).reduce((s, x) => s + x.pnl, 0);
+      const wins = c.filter(x => x.pnl > 0).length, unreal = o.reduce((s, p) => s + (unrealOf(p) || 0), 0);
+      return `<button class="rule" data-p="${esc(rule.id)}">
+        <div class="t">${esc(rule.name)}<span class="sp"></span>${c.length < 20 ? `<span class="small-tag">回数少</span>` : ""}</div>
+        <div class="big num ${pn(tot)}">${sgn(tot, 0)}円<span class="muted" style="font-size:12px;font-weight:400"> 確定損益</span></div>
+        <div class="grid">
+          <div><span>今月</span><b class="num">${sgn(mon, 0)}円</b></div>
+          <div><span>勝率</span><b class="num">${c.length ? fmt(wins / c.length * 100) + "%" : "—"}</b></div>
+          <div><span>決済回数</span><b class="num">${c.length}回</b></div>
+          <div><span>保有中</span><b class="num">${o.length}銘柄</b></div>
+          <div><span>含み損益</span><b class="num ${pn(unreal)}">${sgn(unreal, 0)}円</b></div>
+          <div><span>条件</span><b class="num">≥${rule.threshold}・${rule.hold_days}日</b></div>
+        </div>
+        ${openPaper === rule.id ? `<div class="plist">
+          ${o.map(p => { const u = unrealOf(p); return `<div class="pr"><span>${esc(p.name)} <small>保有中</small><br><small class="num">${md(p.entry_date)} ${pxFmt(p.entry_price)}円で買い</small></span>
+            <span class="v num ${pn(u)}">${u == null ? "—" : sgn(u, 0) + "円"}</span></div>`; }).join("")}
+          ${c.slice(0, 15).map(x => `<div class="pr"><span>${esc(x.name)}<br><small class="num">${md(x.entry_date)}→${md(x.exit_date)} ・ ${pxFmt(x.entry_price)}→${pxFmt(x.exit_price)}</small></span>
+            <span class="v num ${pn(x.pnl)}">${sgn(x.pnl, 0)}円</span></div>`).join("")}
+          ${!o.length && !c.length ? `<div class="pr"><small>まだ取引はありません</small></div>` : ""}</div>` : ""}
+      </button>`;
+    }).join("")}
+    <div class="note">判定のたびに、ルールどおりに売買したと仮定して自動で記録しています。実際の注文は出していません。カードを押すと取引の一覧を表示します。</div>`;
+}
+function bindPaper() {
+  document.querySelectorAll(".rule[data-p]").forEach(b => b.onclick = () => { openPaper = openPaper === b.dataset.p ? null : b.dataset.p; renderPerf(); });
+}
+
+function switchTab(name) { document.querySelector(`nav.tabs button[data-tab="${name}"]`)?.click(); }
+
+
+function tailOf(C, n) { const s = Math.max(0, C.c.length - n); const o = {}; for (const k in C) o[k] = C[k].slice(s); return o; }
+function path(arr, X, Y) { let d = "", pen = false; arr.forEach((v,i)=>{ if (v==null){pen=false;return;} d += (pen?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1); pen = true; }); return d; }
+
+function candleSVG(r, n) {
+  const C = tailOf(r.chart, n), N = C.c.length, W = 360, H = 200, R = 44;
+  const vals = [...C.h, ...C.l, ...C.sma25, ...C.sma75].filter(v=>v!=null);
+  const lo = Math.min(...vals), hi = Math.max(...vals), y = v => 8 + (hi - v)/((hi-lo)||1)*(H-24);
+  const step = (W-R)/N, X = i => step*(i+.5), bw = Math.max(1.4, step*.62);
+  const band = (() => { const ix = C.bbu.map((v,i)=>v!=null&&C.bbl[i]!=null?i:-1).filter(i=>i>=0);
+    return ix.length ? `<path d="M${ix.map(i=>`${X(i)} ${y(Math.min(hi,C.bbu[i]))}`).join("L")}L${ix.slice().reverse().map(i=>`${X(i)} ${y(Math.max(lo,C.bbl[i]))}`).join("L")}Z" fill="var(--soft)"/>` : ""; })();
+  const candles = C.c.map((c,i)=>{ const o = C.o[i], up = c>=o, col = up?"var(--buy)":"var(--sell)", t = y(Math.max(o,c)), b = y(Math.min(o,c));
+    return `<line x1="${X(i)}" x2="${X(i)}" y1="${y(C.h[i])}" y2="${y(C.l[i])}" stroke="${col}"/><rect x="${X(i)-bw/2}" y="${t}" width="${bw}" height="${Math.max(1,b-t)}" fill="${up?"var(--panel)":col}" stroke="${col}" stroke-width=".8"/>`; }).join("");
+  const idx = Object.fromEntries(C.d.map((d,i)=>[d,i]));
+  const marks = (r.signals||[]).map(s=>{ const i = idx[s.d.slice(5).replace("-","/")]; if (i==null) return "";
+    const buy = s.decision.includes("BUY"), z = s.decision.startsWith("STRONG") ? 5 : 3.8, yy = buy ? Math.min(H-14, y(C.l[i])+8) : Math.max(6, y(C.h[i])-8);
+    const p = buy ? `${X(i)},${yy-z} ${X(i)-z},${yy+z} ${X(i)+z},${yy+z}` : `${X(i)},${yy+z} ${X(i)-z},${yy-z} ${X(i)+z},${yy-z}`;
+    return `<polygon points="${p}" fill="${buy?"var(--buy)":"var(--sell)"}" opacity="${z>4?1:.65}"/>`; }).join("");
+  const grid = [0,.5,1].map(f=>{ const v = lo+(hi-lo)*f; return `<line x1="0" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-dasharray="2 3"/><text x="${W-R+4}" y="${y(v)+3}" font-size="9" fill="var(--sub)">${pxFmt(v)}</text>`; }).join("");
+  const xl = [0, Math.floor(N/2), N-1].map((i,j)=>`<text x="${X(i)}" y="${H-2}" font-size="9" fill="var(--sub)" text-anchor="${["start","middle","end"][j]}">${C.d[i]}</text>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="日足チャート">${band}${grid}
+    <path d="${path(C.sma25,X,y)}" fill="none" stroke="#d08a2e" stroke-width="1.3"/><path d="${path(C.sma75,X,y)}" fill="none" stroke="#7a52b3" stroke-width="1.3"/>
+    ${candles}${marks}${xl}</svg>`;
+}
+function scoreSVG(r, n) {
+  const s = tailOf(r.chart, n).score, N = s.length, W = 360, H = 80, R = 44;
+  const m = Math.max(4, ...s.map(v=>Math.abs(v||0))), y = v => H/2 - v/m*(H/2-4), step = (W-R)/N, bw = Math.max(1.4, step*.7);
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="スコア推移">
+    ${[3.5,2,-2,-3.5].map(t=>`<line x1="0" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="${t>0?"var(--buy)":"var(--sell)"}" stroke-dasharray="3 3" opacity=".4"/><text x="${W-R+4}" y="${y(t)+3}" font-size="9" fill="var(--sub)">${t>0?"+":""}${t}</text>`).join("")}
+    <line x1="0" x2="${W-R}" y1="${y(0)}" y2="${y(0)}" stroke="var(--sub)" opacity=".5"/>
+    ${s.map((v,i)=>{ if (v==null) return ""; const d = decOf(v), col = d.includes("BUY")?"var(--buy)":d.includes("SELL")?"var(--sell)":"var(--hold)";
+      return `<rect x="${step*i+(step-bw)/2}" y="${Math.min(y(0),y(v))}" width="${bw}" height="${Math.abs(y(v)-y(0))||.5}" fill="${col}" opacity="${d==="HOLD"?.4:.9}"/>`; }).join("")}</svg>`;
+}
+
+// ------------------------------------------------------------ タブ・起動
+document.querySelectorAll("nav.tabs button").forEach(b => b.onclick = () => {
+  tab = b.dataset.tab;
+  document.querySelectorAll("nav.tabs button").forEach(x => x.classList.toggle("on", x===b));
+  ["today","hold","perf","hist"].forEach(t => $("#tab-"+t).hidden = t!==tab);
+  window.scrollTo(0,0);
+});
+$("#reload").onclick = () => { load(); loadTrades(); };
+$("#gear").onclick = openSettings;
+document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now()-lastLoad > 10*60e3) load(); });
+window.addEventListener("online", load); window.addEventListener("offline", () => S && render());
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+load().then(loadTrades);
+</script>
+</body>
+</html>

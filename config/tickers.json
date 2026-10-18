@@ -1,0 +1,10 @@
+[
+  {"code": "7203.T", "name": "トヨタ自動車", "enabled": true, "memo": ""},
+  {"code": "6996.T", "name": "ニチコン", "enabled": true, "memo": ""},
+  {"code": "9509.T", "name": "北海道電力", "enabled": true, "memo": ""},
+  {"code": "8801.T", "name": "三井不動産", "enabled": true, "memo": ""},
+  {"code": "3556.T", "name": "リネットジャパン", "enabled": true, "memo": ""},
+  {"code": "6573.T", "name": "CRAVIA", "enabled": true, "memo": ""},
+  {"code": "6740.T", "name": "ジャパンディスプレイ", "enabled": true, "memo": ""},
+  {"code": "8267.T", "name": "イオン", "enabled": true, "memo": ""}
+]

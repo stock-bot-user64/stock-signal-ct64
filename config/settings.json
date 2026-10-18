@@ -1,0 +1,29 @@
+{
+  "history_period": "2y",
+  "notify_decisions": [
+    "STRONG BUY",
+    "BUY",
+    "SELL",
+    "STRONG SELL"
+  ],
+  "spreadsheet_key": "",
+  "sheet_name": "Daily",
+  "credentials_file": "credentials.json",
+  "chart_days": 90,
+  "paper_rules": [
+    {
+      "id": "sb25",
+      "name": "強い買い → 25日保有",
+      "threshold": 3.5,
+      "hold_days": 25,
+      "shares": 100
+    },
+    {
+      "id": "b5",
+      "name": "買い → 5日保有",
+      "threshold": 2.0,
+      "hold_days": 5,
+      "shares": 100
+    }
+  ]
+}

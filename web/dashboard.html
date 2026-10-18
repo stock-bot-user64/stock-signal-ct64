@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>日本株シグナル</title>
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#fff; --ink:#1d1d1f; --sub:#6b6b70; --line:#e6e4df; --soft:#f0eee9;
+  --buy:#c8322d; --buy-soft:#fbe9e7; --sbuy:#9e1c18;
+  --sell:#1f5fbf; --sell-soft:#e6eefb; --ssell:#123f85;
+  --hold:#8a8a8f; --hold-soft:#eeeeef;
+  --up:#c8322d; --down:#1f5fbf; --accent:#1d1d1f; --warn:#b26a00;
+  --mono:"SF Mono",ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#141416; --panel:#1d1d20; --ink:#ececee; --sub:#9a9aa1; --line:#2e2e33; --soft:#25252a;
+  --buy:#ef6a5f; --buy-soft:#3a1f1e; --sbuy:#ff8b80;
+  --sell:#6aa0f0; --sell-soft:#1b2940; --ssell:#93bcff;
+  --hold:#8a8a92; --hold-soft:#2a2a2f; --up:#ef6a5f; --down:#6aa0f0; --accent:#ececee; --warn:#e3a33b;
+}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI",Meiryo,sans-serif;
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:20px 16px 60px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 20px;margin-bottom:18px}
+header h1{font-size:20px;margin:0;letter-spacing:.02em}
+header .meta{color:var(--sub);font-size:12px}
+header .spacer{flex:1}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:7px 14px;font-size:13px}
+.btn:hover{border-color:var(--sub)}
+.btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;background:var(--soft);color:var(--sub)}
+
+/* サマリー */
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.sum{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;text-align:left}
+.sum .k{font-size:11px;color:var(--sub);letter-spacing:.04em}
+.sum .v{font-size:24px;font-weight:600}
+.sum.active{outline:2px solid var(--ink);outline-offset:-1px}
+.sum[data-d="STRONG BUY"] .v,.sum[data-d="BUY"] .v{color:var(--buy)}
+.sum[data-d="STRONG SELL"] .v,.sum[data-d="SELL"] .v{color:var(--sell)}
+.sum[data-d="HOLD"] .v{color:var(--hold)}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;color:var(--sub);font-size:12px}
+.toolbar select{font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:6px;padding:4px 6px}
+.toolbar label{display:flex;gap:4px;align-items:center}
+
+/* 銘柄一覧 */
+.list{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(150px,1.4fr) 116px 150px 120px 130px minmax(120px,1.4fr);
+  gap:14px;align-items:center;padding:12px 16px;border-top:1px solid var(--line);cursor:pointer}
+.row:first-child{border-top:0}
+.row:hover{background:var(--soft)}
+.row.open{background:var(--soft)}
+.hd{cursor:default;font-size:11px;color:var(--sub);padding:8px 16px;background:transparent}
+.hd:hover{background:transparent}
+.name b{font-size:15px;font-weight:600}
+.name .code{color:var(--sub);font-size:12px;margin-left:6px}
+.name .memo{display:block;color:var(--sub);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.b-STRONG-BUY{background:var(--sbuy);color:#fff}.b-BUY{background:var(--buy-soft);color:var(--buy)}
+.b-HOLD{background:var(--panel);color:var(--hold);box-shadow:inset 0 0 0 1px var(--line)}
+.b-SELL{background:var(--sell-soft);color:var(--sell)}.b-STRONG-SELL{background:var(--ssell);color:#fff}
+.chg{font-size:10px;font-weight:700;color:var(--warn);margin-left:4px}
+.scorebar{position:relative;height:8px;background:var(--line);border-radius:4px;margin-top:4px}
+.scorebar i{position:absolute;top:0;bottom:0;border-radius:4px}
+.scorebar .mid{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--sub);opacity:.5}
+.scorebar .tk{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--line)}
+.price .c{font-size:15px}
+.up{color:var(--up)}.down{color:var(--down)}
+.strip{display:flex;gap:2px}
+.strip span{width:5px;height:16px;border-radius:1px;background:var(--line)}
+.strip .s-BUY{background:var(--buy);opacity:.55}.strip .s-STRONG-BUY{background:var(--sbuy)}
+.strip .s-SELL{background:var(--sell);opacity:.55}.strip .s-STRONG-SELL{background:var(--ssell)}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:11px;padding:1px 7px;border-radius:5px;border:1px solid var(--line);white-space:nowrap}
+.chip.p{color:var(--buy);border-color:color-mix(in srgb,var(--buy) 35%,transparent)}
+.chip.m{color:var(--sell);border-color:color-mix(in srgb,var(--sell) 35%,transparent)}
+.muted{color:var(--sub)}
+.warn{color:var(--warn)}
+
+/* 詳細 */
+.detail{border-top:1px solid var(--line);padding:16px;display:grid;grid-template-columns:1fr 300px;gap:20px;background:var(--panel)}
+.detail h4{margin:0 0 8px;font-size:12px;color:var(--sub);font-weight:600;letter-spacing:.04em}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:12px;font-size:11px;color:var(--sub);margin:4px 0 0}
+.legend i{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:4px}
+table.t{width:100%;border-collapse:collapse;font-size:12px}
+table.t td,table.t th{padding:5px 6px;border-bottom:1px solid var(--line);text-align:right}
+table.t td:first-child,table.t th:first-child{text-align:left}
+table.t th{color:var(--sub);font-weight:500}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:12px;margin-bottom:14px}
+.kv dt{color:var(--sub)}.kv dd{margin:0;text-align:right}
+.good{font-weight:700}
+.side>section{margin-bottom:18px}
+
+/* 銘柄管理 */
+dialog{border:0;border-radius:14px;padding:0;width:min(640px,calc(100vw - 32px));background:var(--panel);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+.dlg-h{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.dlg-h h3{margin:0;font-size:16px;flex:1}
+.dlg-b{padding:16px 18px;max-height:70vh;overflow:auto}
+.addform{display:grid;grid-template-columns:120px 1fr 1fr auto;gap:8px;margin-bottom:6px}
+.addform input,.mrow input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:7px 9px;width:100%}
+.hint{font-size:11px;color:var(--sub);margin-bottom:14px}
+.msg{font-size:12px;min-height:18px;margin-bottom:8px}
+.msg.err{color:var(--buy)}.msg.ok{color:#2e7d32}
+.mrow{display:grid;grid-template-columns:28px 80px 1fr 1fr 32px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.mrow.off{opacity:.5}
+.mrow .x{border:0;background:none;color:var(--sub);font-size:16px}
+.mrow .x:hover{color:var(--buy)}
+.toggle{width:18px;height:18px;accent-color:var(--ink)}
+
+.errors{margin-top:14px;border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);background:color-mix(in srgb,var(--warn) 8%,transparent);border-radius:10px;padding:10px 14px;font-size:12px}
+.log{font-family:var(--mono);font-size:11px;white-space:pre-wrap;background:var(--soft);border-radius:8px;padding:8px 10px;max-height:160px;overflow:auto;margin-top:10px;display:none}
+.empty{padding:40px;text-align:center;color:var(--sub)}
+footer{margin-top:24px;font-size:11px;color:var(--sub)}
+
+@media (max-width:820px){
+  .summary{grid-template-columns:repeat(5,1fr);gap:4px}
+  .sum{padding:8px 6px}.sum .v{font-size:18px}.sum .k{font-size:9px}
+  .hd{display:none}
+  .row{grid-template-columns:1fr auto;gap:6px 10px}
+  .row .c-strip{display:none}
+  .row .c-chips{grid-column:1/-1}
+  .detail{grid-template-columns:1fr}
+  .addform{grid-template-columns:1fr 1fr}
+  .mrow{grid-template-columns:24px 70px 1fr 28px}.mrow .memo-in{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>日本株シグナル</h1>
+      <div class="meta" id="meta"></div>
+    </div>
+    <div class="spacer"></div>
+    <span class="tag" id="modeTag" hidden>閲覧専用（静的レポート）</span>
+    <button class="btn" id="btnManage" hidden>銘柄の追加・削除</button>
+    <button class="btn primary" id="btnRun" hidden>今すぐ判定</button>
+  </header>
+  <div class="log" id="log"></div>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="toolbar">
+    <label>並び順
+      <select id="sort">
+        <option value="score">スコア（買い→売り）</option>
+        <option value="abs">シグナルの強さ</option>
+        <option value="change">前日比</option>
+        <option value="code">銘柄コード</option>
+      </select>
+    </label>
+    <label><input type="checkbox" id="onlyChanged"> 判定が変わった銘柄だけ</label>
+    <span class="spacer" style="flex:1"></span>
+    <span id="filterNote"></span>
+  </div>
+
+  <div class="list" id="list"></div>
+  <div id="errors"></div>
+
+  <footer>スコアはテクニカル指標とローソク足パターンによる機械的な判定です（BUY ≥ +2.0、STRONG BUY ≥ +3.5、SELL ≤ −2.0、STRONG SELL ≤ −3.5）。
+    色は日本の慣習に合わせ 上昇・買い＝赤、下落・売り＝青 です。売買判断はご自身で行ってください。</footer>
+</div>
+
+<dialog id="dlg">
+  <div class="dlg-h"><h3>銘柄の追加・削除</h3><button class="btn" id="dlgClose">閉じる</button></div>
+  <div class="dlg-b">
+    <form class="addform" id="addForm" autocomplete="off">
+      <input id="fCode" placeholder="コード 例: 7203" required>
+      <input id="fName" placeholder="銘柄名（任意）">
+      <input id="fMemo" placeholder="メモ（任意）">
+      <button class="btn primary" type="submit">追加</button>
+    </form>
+    <div class="hint">4桁コードだけでOK（自動で「.T」を付けます）。追加時に株価を取得できるか確認し、すぐに判定します。チェックを外すと削除せずに判定対象から外せます。</div>
+    <div class="msg" id="msg"></div>
+    <div id="mlist"></div>
+  </div>
+</dialog>
+
+<script>
+const EMBED = /*__DATA__*/null;
+const APP = !EMBED;            // サーバー経由で開いたときだけ編集可能
+let S = EMBED || {tickers:[],latest:{results:[],errors:[]},backtest:{}};
+let filter = null, openCode = null;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const cls = d => (d||"HOLD").replace(" ","-");
+const fmt = (v,d=0) => v==null ? "—" : Number(v).toLocaleString("ja-JP",{minimumFractionDigits:d,maximumFractionDigits:d});
+const sgn = (v,d=1) => v==null ? "—" : (v>0?"+":v<0?"−":"±") + fmt(Math.abs(v),d);
+const decOf = s => s>=3.5?"STRONG BUY":s>=2?"BUY":s<=-3.5?"STRONG SELL":s<=-2?"SELL":"HOLD";
+const DECS = ["STRONG BUY","BUY","HOLD","SELL","STRONG SELL"];
+const LABEL = {"STRONG BUY":"強い買い","BUY":"買い","HOLD":"様子見","SELL":"売り","STRONG SELL":"強い売り"};
+
+async function api(path, opt={}) {
+  const r = await fetch(path, {headers:{"Content-Type":"application/json"}, ...opt});
+  const j = await r.json().catch(()=>({}));
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+
+function results() {
+  const meta = Object.fromEntries(S.tickers.map(t=>[t.code,t]));
+  return S.latest.results
+    .filter(r => !meta[r.code] || meta[r.code].enabled !== false)
+    .map(r => ({...r, name: meta[r.code]?.name || r.name, memo: meta[r.code]?.memo || ""}));
+}
+
+// ------------------------------------------------------------------ 描画
+function render() {
+  const rs = results();
+  const L = S.latest;
+  const dates = [...new Set(rs.map(r=>r.date))].sort();
+  $("#meta").innerHTML = rs.length
+    ? `判定日 <b class="num">${esc(dates.at(-1))}</b>${L.intraday ? `<span style="color:var(--warn)">（場中・暫定。株価は約20分遅れ）</span>` : "（終値ベース）"}・ 更新 <span class="num">${esc(L.generated_at||"")}</span> ・ ${rs.length}銘柄`
+    : "まだ判定結果がありません";
+
+  // サマリー
+  const cnt = Object.fromEntries(DECS.map(d=>[d,0]));
+  rs.forEach(r => cnt[r.decision]++);
+  $("#summary").innerHTML = DECS.map(d =>
+    `<button class="sum ${filter===d?"active":""}" data-d="${d}"><div class="k">${d}<br>${LABEL[d]}</div><div class="v num">${cnt[d]}</div></button>`).join("");
+  document.querySelectorAll(".sum").forEach(b => b.onclick = () => { filter = filter===b.dataset.d ? null : b.dataset.d; render(); });
+
+  // 並び替え・絞り込み
+  let list = rs.slice();
+  if (filter) list = list.filter(r => r.decision === filter);
+  if ($("#onlyChanged").checked) list = list.filter(r => r.decision !== r.prev_decision);
+  const k = $("#sort").value;
+  list.sort((a,b) => k==="score" ? b.score-a.score : k==="abs" ? Math.abs(b.score)-Math.abs(a.score)
+        : k==="change" ? b.change_pct-a.change_pct : a.code.localeCompare(b.code));
+  $("#filterNote").textContent = filter ? `「${filter}」で絞り込み中（もう一度押すと解除）` : "";
+
+  const head = `<div class="row hd"><div>銘柄</div><div>判定</div><div>スコア</div><div>終値 / 前日比</div><div>過去20日の判定</div><div>今日のシグナル</div></div>`;
+  $("#list").innerHTML = list.length ? head + list.map(rowHTML).join("")
+    : `<div class="empty">${rs.length ? "条件に合う銘柄はありません" : (APP ? "「今すぐ判定」を押すと結果が表示されます" : "結果がありません")}</div>`;
+  document.querySelectorAll(".row[data-code]").forEach(el => el.onclick = () => {
+    openCode = openCode===el.dataset.code ? null : el.dataset.code; render();
+  });
+
+  // エラー
+  const errs = L.errors || [];
+  $("#errors").innerHTML = errs.length ? `<div class="errors"><b>取得・解析できなかった銘柄</b><br>${
+    errs.map(e=>`${esc(e.name||"")} (${esc(e.code)}): ${esc(e.error)}`).join("<br>")}</div>` : "";
+}
+
+function scoreBar(s) {
+  const max = 6, p = Math.max(-max, Math.min(max, s)) / max * 50;
+  const col = s>=2 ? "var(--buy)" : s<=-2 ? "var(--sell)" : "var(--hold)";
+  const ticks = [-3.5,-2,2,3.5].map(t=>`<span class="tk" style="left:${50+t/max*50}%"></span>`).join("");
+  const bar = p>=0 ? `left:50%;width:${p}%` : `left:${50+p}%;width:${-p}%`;
+  return `<div class="scorebar">${ticks}<i style="${bar};background:${col}"></i><span class="mid"></span></div>`;
+}
+
+function rowHTML(r) {
+  const changed = r.prev_decision && r.decision !== r.prev_decision;
+  const stale = r.stale_days > 4 ? `<span class="warn" title="最新データが古い">⚠ ${r.stale_days}日前</span>` : "";
+  const sc = r.chart.score.slice(-20);
+  const strip = sc.map((s,i)=>`<span class="s-${cls(decOf(s))}" title="${esc(r.chart.d.slice(-20)[i])}  ${sgn(s)}"></span>`).join("");
+  const chips = (r.breakdown||[]).filter(b=>!b.label.startsWith("75日線"))
+    .map(b=>`<span class="chip ${b.points>0?"p":"m"}">${esc(b.label)}</span>`).join("")
+    || `<span class="muted" style="font-size:12px">なし</span>`;
+  return `<div class="row ${openCode===r.code?"open":""}" data-code="${esc(r.code)}">
+    <div class="name"><b>${esc(r.name)}</b><span class="code num">${esc(r.code.replace(".T",""))}</span>
+      <span class="memo">${esc(r.memo)} ${stale}</span></div>
+    <div><span class="badge b-${cls(r.decision)}">${r.decision}</span>${changed?`<span class="chg" title="前日: ${esc(r.prev_decision)}">変化</span>`:""}</div>
+    <div><span class="num" style="font-size:15px;font-weight:600">${sgn(r.score)}</span>${scoreBar(r.score)}</div>
+    <div class="price"><div class="c num">${fmt(r.close, r.close<1000?1:0)}</div>
+      <div class="num ${r.change_pct>=0?"up":"down"}" style="font-size:12px">${sgn(r.change_pct,2)}%</div></div>
+    <div class="c-strip"><div class="strip">${strip}</div></div>
+    <div class="c-chips chips">${chips}</div>
+  </div>${openCode===r.code ? detailHTML(r) : ""}`;
+}
+
+// ------------------------------------------------------------- 詳細パネル
+function detailHTML(r) {
+  const bd = (r.breakdown||[]).map(b=>`<tr><td>${esc(b.label)}</td><td class="num ${b.points>0?"up":"down"}">${sgn(b.points)}</td></tr>`).join("")
+    || `<tr><td colspan="2" class="muted">該当シグナルなし</td></tr>`;
+  const bt = S.backtest[r.code] || [];
+  let btHTML = `<div class="muted" style="font-size:12px">バックテスト結果がありません（backtest.py を実行すると表示されます）</div>`;
+  if (bt.length) {
+    const holds = [...new Set(bt.map(x=>x.hold))].sort((a,b)=>a-b);
+    const ths = [...new Set(bt.map(x=>x.threshold))].sort();
+    btHTML = `<table class="t"><tr><th>買い条件 \\ 保有</th>${holds.map(h=>`<th>${h}日</th>`).join("")}</tr>${
+      ths.map(th=>`<tr><td>スコア≥${th}</td>${holds.map(h=>{
+        const x = bt.find(b=>b.threshold===th && b.hold===h);
+        if (!x) return "<td>—</td>";
+        const good = x.win_rate>=60 && x.trades>=10;
+        const pnl = x.pnl==null ? "" : `<br><span class="${x.pnl>=0?"up":"down"}" style="font-size:11px">${x.pnl>=0?"+":"−"}${fmt(Math.abs(x.pnl)/10000,1)}万</span>`;
+        return `<td class="num ${good?"good up":""}" title="${x.trades}回 / 平均${sgn(x.avg_ret,2)}%${x.avg_pnl!=null?` / 1回平均${sgn(x.avg_pnl,0)}円`:""}">${fmt(x.win_rate)}%${pnl}<br><span class="muted" style="font-size:10px">${x.trades}回</span></td>`;
+      }).join("")}</tr>`).join("")}</table>
+      <div class="muted" style="font-size:11px;margin-top:4px">上段=勝率（太字＝60%以上かつ10回以上）、中段=総損益（100株換算）、下段=取引回数。</div>`;
+  }
+  return `<div class="detail">
+    <div>
+      <h4>日足チャート（直近${r.chart.c.length}日）</h4>
+      <div class="chart">${candleSVG(r)}</div>
+      <div class="legend"><span><i style="background:#d08a2e"></i>25日線</span><span><i style="background:#7a52b3"></i>75日線</span>
+        <span><i style="background:var(--line);height:8px"></i>ボリンジャー±2σ</span><span>▲買い / ▼売りシグナル</span></div>
+      <h4 style="margin-top:14px">日々のスコア</h4>
+      <div class="chart">${scoreSVG(r)}</div>
+    </div>
+    <div class="side">
+      <section><h4>今日のスコア内訳</h4><table class="t">${bd}<tr><th>合計</th><th class="num">${sgn(r.score)}</th></tr></table></section>
+      <section><h4>指標</h4><dl class="kv">
+        <dt>RSI(14)</dt><dd class="num">${fmt(r.rsi,1)}</dd>
+        <dt>25日線乖離</dt><dd class="num">${sgn(r.sma25_gap,2)}%</dd>
+        <dt>75日線乖離</dt><dd class="num">${sgn(r.sma75_gap,2)}%</dd>
+        <dt>前日の判定</dt><dd>${esc(r.prev_decision)}</dd>
+        <dt>データ日付</dt><dd class="num">${esc(r.date)}</dd></dl></section>
+      <section><h4>過去の成績（バックテスト）</h4>${btHTML}</section>
+    </div></div>`;
+}
+
+function scale(vals, h, pad) {
+  const v = vals.filter(x=>x!=null), lo = Math.min(...v), hi = Math.max(...v), span = (hi-lo)||1;
+  return {lo, hi, y: x => pad + (hi - x) / span * (h - pad*2)};
+}
+function path(arr, X, Y) {
+  let d = "", pen = false;
+  arr.forEach((v,i)=>{ if (v==null){pen=false;return;} d += (pen?"L":"M") + X(i).toFixed(1) + " " + Y(v).toFixed(1); pen = true; });
+  return d;
+}
+function candleSVG(r) {
+  const C = r.chart, n = C.c.length, W = 720, H = 260, L = 8, R = 56;
+  const all = [...C.h, ...C.l, ...C.bbu, ...C.bbl, ...C.sma75];
+  const {lo, hi, y} = scale(all, H, 14);
+  const step = (W-L-R)/n, X = i => L + step*(i+.5), bw = Math.max(1.5, step*.6);
+  // ボリンジャー帯
+  let band = "";
+  const idx = C.bbu.map((v,i)=>v!=null&&C.bbl[i]!=null?i:-1).filter(i=>i>=0);
+  if (idx.length) band = `<path d="M${idx.map(i=>`${X(i)} ${y(C.bbu[i])}`).join("L")}L${idx.reverse().map(i=>`${X(i)} ${y(C.bbl[i])}`).join("L")}Z" fill="var(--soft)"/>`;
+  const candles = C.c.map((c,i)=>{
+    const o=C.o[i], up = c>=o, col = up ? "var(--up)" : "var(--down)";
+    const top = y(Math.max(o,c)), bot = y(Math.min(o,c));
+    return `<line x1="${X(i)}" x2="${X(i)}" y1="${y(C.h[i])}" y2="${y(C.l[i])}" stroke="${col}" stroke-width="1"/>`+
+      `<rect x="${X(i)-bw/2}" y="${top}" width="${bw}" height="${Math.max(1,bot-top)}" fill="${up?"var(--panel)":col}" stroke="${col}" stroke-width="1"/>`;
+  }).join("");
+  // シグナルマーカー
+  const dmap = Object.fromEntries(C.d.map((d,i)=>[d,i]));
+  const marks = (r.signals||[]).map(s=>{
+    const i = dmap[s.d.slice(5).replace("-","/")]; if (i==null) return "";
+    const buy = s.decision.includes("BUY"), strong = s.decision.startsWith("STRONG");
+    const yy = buy ? y(C.l[i]) + 10 : y(C.h[i]) - 10, sz = strong?6:4.5;
+    const pts = buy ? `${X(i)},${yy-sz} ${X(i)-sz},${yy+sz} ${X(i)+sz},${yy+sz}` : `${X(i)},${yy+sz} ${X(i)-sz},${yy-sz} ${X(i)+sz},${yy-sz}`;
+    return `<polygon points="${pts}" fill="${buy?"var(--buy)":"var(--sell)"}" opacity="${strong?1:.6}"><title>${s.d} ${s.decision} ${sgn(s.score)}</title></polygon>`;
+  }).join("");
+  const grid = [0,.25,.5,.75,1].map(f=>{ const v = lo+(hi-lo)*f, yy=y(v);
+    return `<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="var(--line)" stroke-dasharray="2 3"/><text x="${W-R+6}" y="${yy+4}" font-size="10" fill="var(--sub)" class="num">${fmt(v, v<1000?1:0)}</text>`; }).join("");
+  const xl = [0, Math.floor(n/3), Math.floor(2*n/3), n-1].map(i=>`<text x="${X(i)}" y="${H-1}" font-size="10" fill="var(--sub)" text-anchor="middle">${C.d[i]}</text>`).join("");
+  const last = C.c[n-1];
+  return `<svg viewBox="0 0 ${W} ${H+4}" role="img" aria-label="${esc(r.name)}の日足チャート">${band}${grid}
+    <path d="${path(C.sma25,X,y)}" fill="none" stroke="#d08a2e" stroke-width="1.5"/>
+    <path d="${path(C.sma75,X,y)}" fill="none" stroke="#7a52b3" stroke-width="1.5"/>
+    ${candles}${marks}
+    <line x1="${L}" x2="${W-R}" y1="${y(last)}" y2="${y(last)}" stroke="var(--ink)" stroke-width=".6" opacity=".5"/>
+    <rect x="${W-R+2}" y="${y(last)-8}" width="${R-4}" height="16" rx="3" fill="var(--ink)"/>
+    <text x="${W-R+6}" y="${y(last)+4}" font-size="10" fill="var(--bg)" class="num">${fmt(last, last<1000?1:0)}</text>${xl}</svg>`;
+}
+function scoreSVG(r) {
+  const s = r.chart.score, n = s.length, W = 720, H = 90, L = 8, R = 56;
+  const m = Math.max(4, ...s.map(v=>Math.abs(v||0))), y = v => H/2 - v/m*(H/2-6);
+  const step = (W-L-R)/n, bw = Math.max(1.5, step*.7);
+  const bars = s.map((v,i)=>{ if (v==null) return ""; const d = decOf(v);
+    const col = d.includes("BUY")?"var(--buy)":d.includes("SELL")?"var(--sell)":"var(--hold)";
+    return `<rect x="${L+step*i+(step-bw)/2}" y="${Math.min(y(0),y(v))}" width="${bw}" height="${Math.abs(y(v)-y(0))||.5}" fill="${col}" opacity="${d==="HOLD"?.45:.9}"><title>${r.chart.d[i]} ${sgn(v)}</title></rect>`; }).join("");
+  const lines = [3.5,2,-2,-3.5].map(t=>`<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="${t>0?"var(--buy)":"var(--sell)"}" stroke-dasharray="3 3" opacity=".45"/><text x="${W-R+6}" y="${y(t)+3}" font-size="9" fill="var(--sub)" class="num">${t>0?"+":""}${t}</text>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="スコア推移"><line x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}" stroke="var(--sub)" opacity=".5"/>${lines}${bars}</svg>`;
+}
+
+// ------------------------------------------------------------- 銘柄管理
+function renderManage() {
+  $("#mlist").innerHTML = S.tickers.map(t=>`<div class="mrow ${t.enabled===false?"off":""}" data-code="${esc(t.code)}">
+    <input type="checkbox" class="toggle" ${t.enabled===false?"":"checked"} title="判定対象にする">
+    <span class="num">${esc(t.code)}</span>
+    <input type="text" class="name-in" value="${esc(t.name)}" placeholder="銘柄名">
+    <input type="text" class="memo-in" value="${esc(t.memo||"")}" placeholder="メモ">
+    <button class="x" title="削除">✕</button></div>`).join("") || `<div class="muted">銘柄がありません</div>`;
+  document.querySelectorAll(".mrow").forEach(row => {
+    const code = row.dataset.code;
+    row.querySelector(".toggle").onchange = e => patch(code, {enabled: e.target.checked});
+    row.querySelector(".name-in").onchange = e => patch(code, {name: e.target.value});
+    row.querySelector(".memo-in").onchange = e => patch(code, {memo: e.target.value});
+    row.querySelector(".x").onclick = async () => {
+      const t = S.tickers.find(x=>x.code===code);
+      if (!confirm(`${t.name||code}（${code}）をリストから削除しますか？`)) return;
+      try { await api(`/api/tickers/${encodeURIComponent(code)}`, {method:"DELETE"}); say(`${code} を削除しました`, "ok"); await load(); }
+      catch (e) { say(e.message, "err"); }
+    };
+  });
+}
+async function patch(code, body) {
+  try { await api(`/api/tickers/${encodeURIComponent(code)}`, {method:"PATCH", body: JSON.stringify(body)}); await load(); }
+  catch (e) { say(e.message, "err"); }
+}
+function say(t, kind="") { const m = $("#msg"); m.textContent = t; m.className = "msg " + kind; }
+
+$("#addForm").onsubmit = async e => {
+  e.preventDefault();
+  const btn = e.target.querySelector("button"); btn.disabled = true;
+  say("株価データを確認しています…");
+  try {
+    const j = await api("/api/tickers", {method:"POST", body: JSON.stringify({code:$("#fCode").value, name:$("#fName").value, memo:$("#fMemo").value})});
+    say(`${j.ticker.name}（${j.ticker.code}）を追加し、判定しました`, "ok");
+    e.target.reset(); await load();
+  } catch (err) { say(err.message, "err"); }
+  btn.disabled = false;
+};
+
+// ------------------------------------------------------------------ 起動
+async function load() {
+  if (!APP) return render();
+  S = await api("/api/state");
+  render(); renderManage();
+  const b = $("#btnRun");
+  b.disabled = S.job.running; b.textContent = S.job.running ? "判定中…" : "今すぐ判定";
+  $("#log").style.display = S.job.running ? "block" : "none";
+  $("#log").textContent = S.job.log || ""; $("#log").scrollTop = 1e9;
+  if (S.job.finished_at && !S.job.running && /失敗|エラー/.test(S.job.log||"")) { $("#log").style.display = "block"; }
+  if (S.job.running) setTimeout(load, 1500);
+}
+$("#sort").onchange = render; $("#onlyChanged").onchange = render;
+if (APP) {
+  ["#btnManage","#btnRun"].forEach(s=>$(s).hidden=false);
+  $("#btnManage").onclick = () => { say(""); $("#dlg").showModal(); };
+  $("#dlgClose").onclick = () => $("#dlg").close();
+  $("#btnRun").onclick = async () => {
+    const mail = confirm("判定を実行します。\nシグナルが出た場合にメールも送りますか？\n（OK=送る / キャンセル=送らない）");
+    await api("/api/run", {method:"POST", body: JSON.stringify({mail})}); load();
+  };
+} else { $("#modeTag").hidden = false; }
+load().catch(e => { $("#list").innerHTML = `<div class="empty">読み込みに失敗しました: ${esc(e.message)}</div>`; });
+</script>
+</body>
+</html>
