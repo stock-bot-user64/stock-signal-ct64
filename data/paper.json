@@ -1,0 +1,21 @@
+{
+ "positions": [],
+ "closed": [],
+ "rules": [
+  {
+   "id": "sb25",
+   "name": "強い買い → 25日保有",
+   "threshold": 3.5,
+   "hold_days": 25,
+   "shares": 100
+  },
+  {
+   "id": "b5",
+   "name": "買い → 5日保有",
+   "threshold": 2.0,
+   "hold_days": 5,
+   "shares": 100
+  }
+ ],
+ "updated_at": "2026-10-18 17:35"
+}
