@@ -47,6 +47,18 @@
    "entry_decision": "BUY",
    "shares": 100,
    "intraday": true
+  },
+  {
+   "rule": "b5",
+   "code": "9509.T",
+   "name": "北海道電力",
+   "entry_date": "2026-10-19",
+   "entry_at": "2026-10-19 14:51",
+   "entry_price": 1095.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true
   }
  ],
  "closed": [],
@@ -66,5 +78,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-10-19 12:25"
+ "updated_at": "2026-10-19 14:51"
 }
