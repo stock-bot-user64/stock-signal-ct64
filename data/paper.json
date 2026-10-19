@@ -1,5 +1,42 @@
 {
- "positions": [],
+ "positions": [
+  {
+   "rule": "sb25",
+   "code": "8801.T",
+   "name": "三井不動産",
+   "entry_date": "2026-10-19",
+   "entry_at": "2026-10-19 09:57",
+   "entry_price": 1523.0,
+   "entry_score": 3.5,
+   "entry_decision": "STRONG BUY",
+   "shares": 100,
+   "intraday": true
+  },
+  {
+   "rule": "b5",
+   "code": "7203.T",
+   "name": "トヨタ自動車",
+   "entry_date": "2026-10-19",
+   "entry_at": "2026-10-19 09:57",
+   "entry_price": 3082.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true
+  },
+  {
+   "rule": "b5",
+   "code": "8801.T",
+   "name": "三井不動産",
+   "entry_date": "2026-10-19",
+   "entry_at": "2026-10-19 09:57",
+   "entry_price": 1523.0,
+   "entry_score": 3.5,
+   "entry_decision": "STRONG BUY",
+   "shares": 100,
+   "intraday": true
+  }
+ ],
  "closed": [],
  "rules": [
   {
@@ -17,5 +54,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-10-18 17:55"
+ "updated_at": "2026-10-19 09:57"
 }
