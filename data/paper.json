@@ -35,6 +35,18 @@
    "entry_decision": "STRONG BUY",
    "shares": 100,
    "intraday": true
+  },
+  {
+   "rule": "b5",
+   "code": "6996.T",
+   "name": "ニチコン",
+   "entry_date": "2026-10-19",
+   "entry_at": "2026-10-19 12:25",
+   "entry_price": 2336.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true
   }
  ],
  "closed": [],
@@ -54,5 +66,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-10-19 09:57"
+ "updated_at": "2026-10-19 12:25"
 }
