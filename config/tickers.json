@@ -58,5 +58,11 @@
     "name": "サンリオ",
     "enabled": true,
     "memo": ""
+  },
+  {
+    "code": "9766.T",
+    "name": "コナミG",
+    "enabled": true,
+    "memo": ""
   }
 ]
