@@ -71,6 +71,18 @@
    "entry_decision": "BUY",
    "shares": 100,
    "intraday": true
+  },
+  {
+   "rule": "b5",
+   "code": "9766.T",
+   "name": "コナミG",
+   "entry_date": "2026-10-21",
+   "entry_at": "2026-10-21 12:24",
+   "entry_price": 25335.0,
+   "entry_score": 3.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true
   }
  ],
  "closed": [],
@@ -90,5 +102,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-10-21 09:58"
+ "updated_at": "2026-10-21 12:24"
 }
