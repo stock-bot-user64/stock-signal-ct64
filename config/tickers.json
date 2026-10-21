@@ -64,5 +64,11 @@
     "name": "コナミG",
     "enabled": true,
     "memo": ""
+  },
+  {
+    "code": "7832.T",
+    "name": "バンダイナムコ",
+    "enabled": true,
+    "memo": ""
   }
 ]
