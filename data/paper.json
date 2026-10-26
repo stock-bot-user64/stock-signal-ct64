@@ -14,54 +14,6 @@
   },
   {
    "rule": "b5",
-   "code": "7203.T",
-   "name": "トヨタ自動車",
-   "entry_date": "2026-10-19",
-   "entry_at": "2026-10-19 09:57",
-   "entry_price": 3082.0,
-   "entry_score": 2.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
-   "code": "8801.T",
-   "name": "三井不動産",
-   "entry_date": "2026-10-19",
-   "entry_at": "2026-10-19 09:57",
-   "entry_price": 1523.0,
-   "entry_score": 3.5,
-   "entry_decision": "STRONG BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
-   "code": "6996.T",
-   "name": "ニチコン",
-   "entry_date": "2026-10-19",
-   "entry_at": "2026-10-19 12:25",
-   "entry_price": 2336.0,
-   "entry_score": 2.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
-   "code": "9509.T",
-   "name": "北海道電力",
-   "entry_date": "2026-10-19",
-   "entry_at": "2026-10-19 14:51",
-   "entry_price": 1095.0,
-   "entry_score": 2.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
    "code": "6758.T",
    "name": "6758",
    "entry_date": "2026-10-21",
@@ -85,7 +37,80 @@
    "intraday": true
   }
  ],
- "closed": [],
+ "closed": [
+  {
+   "rule": "b5",
+   "code": "7203.T",
+   "name": "トヨタ自動車",
+   "entry_date": "2026-10-19",
+   "entry_at": "2026-10-19 09:57",
+   "entry_price": 3082.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-10-26",
+   "exit_at": "2026-10-26 09:41",
+   "exit_price": 3111.0,
+   "exit_decision": "BUY",
+   "pnl": 2900,
+   "ret": 0.0094
+  },
+  {
+   "rule": "b5",
+   "code": "8801.T",
+   "name": "三井不動産",
+   "entry_date": "2026-10-19",
+   "entry_at": "2026-10-19 09:57",
+   "entry_price": 1523.0,
+   "entry_score": 3.5,
+   "entry_decision": "STRONG BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-10-26",
+   "exit_at": "2026-10-26 09:41",
+   "exit_price": 1588.0,
+   "exit_decision": "HOLD",
+   "pnl": 6500,
+   "ret": 0.0427
+  },
+  {
+   "rule": "b5",
+   "code": "6996.T",
+   "name": "ニチコン",
+   "entry_date": "2026-10-19",
+   "entry_at": "2026-10-19 12:25",
+   "entry_price": 2336.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-10-26",
+   "exit_at": "2026-10-26 09:41",
+   "exit_price": 2155.0,
+   "exit_decision": "HOLD",
+   "pnl": -18100,
+   "ret": -0.0775
+  },
+  {
+   "rule": "b5",
+   "code": "9509.T",
+   "name": "北海道電力",
+   "entry_date": "2026-10-19",
+   "entry_at": "2026-10-19 14:51",
+   "entry_price": 1095.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-10-26",
+   "exit_at": "2026-10-26 09:41",
+   "exit_price": 1087.5,
+   "exit_decision": "HOLD",
+   "pnl": -750,
+   "ret": -0.0068
+  }
+ ],
  "rules": [
   {
    "id": "sb25",
@@ -102,5 +127,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-10-23 14:52"
+ "updated_at": "2026-10-26 09:41"
 }
