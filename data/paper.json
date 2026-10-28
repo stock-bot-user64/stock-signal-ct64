@@ -14,30 +14,6 @@
   },
   {
    "rule": "b5",
-   "code": "6758.T",
-   "name": "6758",
-   "entry_date": "2026-10-21",
-   "entry_at": "2026-10-21 09:58",
-   "entry_price": 3970.0,
-   "entry_score": 2.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
-   "code": "9766.T",
-   "name": "コナミG",
-   "entry_date": "2026-10-21",
-   "entry_at": "2026-10-21 12:24",
-   "entry_price": 25335.0,
-   "entry_score": 3.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
    "code": "7832.T",
    "name": "バンダイナムコ",
    "entry_date": "2026-10-26",
@@ -121,6 +97,42 @@
    "exit_decision": "HOLD",
    "pnl": -750,
    "ret": -0.0068
+  },
+  {
+   "rule": "b5",
+   "code": "6758.T",
+   "name": "6758",
+   "entry_date": "2026-10-21",
+   "entry_at": "2026-10-21 09:58",
+   "entry_price": 3970.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-10-28",
+   "exit_at": "2026-10-28 09:41",
+   "exit_price": 4009.0,
+   "exit_decision": "HOLD",
+   "pnl": 3900,
+   "ret": 0.0098
+  },
+  {
+   "rule": "b5",
+   "code": "9766.T",
+   "name": "コナミG",
+   "entry_date": "2026-10-21",
+   "entry_at": "2026-10-21 12:24",
+   "entry_price": 25335.0,
+   "entry_score": 3.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-10-28",
+   "exit_at": "2026-10-28 09:41",
+   "exit_price": 23675.0,
+   "exit_decision": "HOLD",
+   "pnl": -166000,
+   "ret": -0.0655
   }
  ],
  "rules": [
@@ -139,5 +151,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-10-27 14:53"
+ "updated_at": "2026-10-28 09:41"
 }
