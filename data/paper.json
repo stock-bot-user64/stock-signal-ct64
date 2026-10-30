@@ -23,6 +23,18 @@
    "entry_decision": "BUY",
    "shares": 100,
    "intraday": true
+  },
+  {
+   "rule": "b5",
+   "code": "6758.T",
+   "name": "6758",
+   "entry_date": "2026-10-30",
+   "entry_at": "2026-10-30 09:42",
+   "entry_price": 4054.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true
   }
  ],
  "closed": [
@@ -151,5 +163,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-10-29 15:00"
+ "updated_at": "2026-10-30 09:42"
 }
