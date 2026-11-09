@@ -14,18 +14,6 @@
   },
   {
    "rule": "b5",
-   "code": "6758.T",
-   "name": "6758",
-   "entry_date": "2026-10-30",
-   "entry_at": "2026-10-30 09:42",
-   "entry_price": 4054.0,
-   "entry_score": 2.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
    "code": "8801.T",
    "name": "三井不動産",
    "entry_date": "2026-11-02",
@@ -211,6 +199,24 @@
    "exit_decision": "HOLD",
    "pnl": -2300,
    "ret": -0.0037
+  },
+  {
+   "rule": "b5",
+   "code": "6758.T",
+   "name": "6758",
+   "entry_date": "2026-10-30",
+   "entry_at": "2026-10-30 09:42",
+   "entry_price": 4054.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-11-09",
+   "exit_at": "2026-11-09 09:43",
+   "exit_price": 4237.0,
+   "exit_decision": "HOLD",
+   "pnl": 18300,
+   "ret": 0.0451
   }
  ],
  "rules": [
@@ -229,5 +235,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-11-06 22:02"
+ "updated_at": "2026-11-09 09:43"
 }
