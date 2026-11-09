@@ -71,6 +71,18 @@
    "entry_decision": "BUY",
    "shares": 100,
    "intraday": true
+  },
+  {
+   "rule": "b5",
+   "code": "8136.T",
+   "name": "サンリオ",
+   "entry_date": "2026-11-09",
+   "entry_at": "2026-11-09 19:56",
+   "entry_price": 1169.5,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": false
   }
  ],
  "closed": [
@@ -235,5 +247,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-11-09 15:34"
+ "updated_at": "2026-11-09 19:56"
 }
