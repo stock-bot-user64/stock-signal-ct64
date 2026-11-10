@@ -14,42 +14,6 @@
   },
   {
    "rule": "b5",
-   "code": "8801.T",
-   "name": "三井不動産",
-   "entry_date": "2026-11-02",
-   "entry_at": "2026-11-02 09:44",
-   "entry_price": 1602.0,
-   "entry_score": 2.5,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
-   "code": "6740.T",
-   "name": "ジャパンディスプレイ",
-   "entry_date": "2026-11-02",
-   "entry_at": "2026-11-02 09:44",
-   "entry_price": 28.0,
-   "entry_score": 2.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
-   "code": "9509.T",
-   "name": "北海道電力",
-   "entry_date": "2026-11-02",
-   "entry_at": "2026-11-02 10:20",
-   "entry_price": 1086.0,
-   "entry_score": 3.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
    "code": "3556.T",
    "name": "リネットジャパン",
    "entry_date": "2026-11-04",
@@ -229,6 +193,60 @@
    "exit_decision": "HOLD",
    "pnl": 18300,
    "ret": 0.0451
+  },
+  {
+   "rule": "b5",
+   "code": "8801.T",
+   "name": "三井不動産",
+   "entry_date": "2026-11-02",
+   "entry_at": "2026-11-02 09:44",
+   "entry_price": 1602.0,
+   "entry_score": 2.5,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-11-10",
+   "exit_at": "2026-11-10 16:21",
+   "exit_price": 1556.0,
+   "exit_decision": "HOLD",
+   "pnl": -4600,
+   "ret": -0.0287
+  },
+  {
+   "rule": "b5",
+   "code": "6740.T",
+   "name": "ジャパンディスプレイ",
+   "entry_date": "2026-11-02",
+   "entry_at": "2026-11-02 09:44",
+   "entry_price": 28.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-11-10",
+   "exit_at": "2026-11-10 16:21",
+   "exit_price": 31.0,
+   "exit_decision": "HOLD",
+   "pnl": 300,
+   "ret": 0.1071
+  },
+  {
+   "rule": "b5",
+   "code": "9509.T",
+   "name": "北海道電力",
+   "entry_date": "2026-11-02",
+   "entry_at": "2026-11-02 10:20",
+   "entry_price": 1086.0,
+   "entry_score": 3.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-11-10",
+   "exit_at": "2026-11-10 16:21",
+   "exit_price": 1109.5,
+   "exit_decision": "BUY",
+   "pnl": 2350,
+   "ret": 0.0216
   }
  ],
  "rules": [
@@ -247,5 +265,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-11-09 23:01"
+ "updated_at": "2026-11-10 16:21"
 }
