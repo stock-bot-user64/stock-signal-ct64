@@ -14,30 +14,6 @@
   },
   {
    "rule": "b5",
-   "code": "3556.T",
-   "name": "リネットジャパン",
-   "entry_date": "2026-11-04",
-   "entry_at": "2026-11-04 09:43",
-   "entry_price": 847.0,
-   "entry_score": 2.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
-   "code": "9766.T",
-   "name": "コナミG",
-   "entry_date": "2026-11-04",
-   "entry_at": "2026-11-04 09:43",
-   "entry_price": 26915.0,
-   "entry_score": 2.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
    "code": "8136.T",
    "name": "サンリオ",
    "entry_date": "2026-11-09",
@@ -47,6 +23,30 @@
    "entry_decision": "BUY",
    "shares": 100,
    "intraday": false
+  },
+  {
+   "rule": "sb25",
+   "code": "9509.T",
+   "name": "北海道電力",
+   "entry_date": "2026-11-11",
+   "entry_at": "2026-11-11 09:42",
+   "entry_price": 1118.5,
+   "entry_score": 3.5,
+   "entry_decision": "STRONG BUY",
+   "shares": 100,
+   "intraday": true
+  },
+  {
+   "rule": "b5",
+   "code": "9509.T",
+   "name": "北海道電力",
+   "entry_date": "2026-11-11",
+   "entry_at": "2026-11-11 09:42",
+   "entry_price": 1118.5,
+   "entry_score": 3.5,
+   "entry_decision": "STRONG BUY",
+   "shares": 100,
+   "intraday": true
   }
  ],
  "closed": [
@@ -247,6 +247,42 @@
    "exit_decision": "BUY",
    "pnl": 2350,
    "ret": 0.0216
+  },
+  {
+   "rule": "b5",
+   "code": "3556.T",
+   "name": "リネットジャパン",
+   "entry_date": "2026-11-04",
+   "entry_at": "2026-11-04 09:43",
+   "entry_price": 847.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-11-11",
+   "exit_at": "2026-11-11 09:42",
+   "exit_price": 914.0,
+   "exit_decision": "HOLD",
+   "pnl": 6700,
+   "ret": 0.0791
+  },
+  {
+   "rule": "b5",
+   "code": "9766.T",
+   "name": "コナミG",
+   "entry_date": "2026-11-04",
+   "entry_at": "2026-11-04 09:43",
+   "entry_price": 26915.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-11-11",
+   "exit_at": "2026-11-11 09:42",
+   "exit_price": 28600.0,
+   "exit_decision": "HOLD",
+   "pnl": 168500,
+   "ret": 0.0626
   }
  ],
  "rules": [
@@ -265,5 +301,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-11-10 22:35"
+ "updated_at": "2026-11-11 09:42"
 }
