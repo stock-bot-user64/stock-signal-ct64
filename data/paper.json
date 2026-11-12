@@ -47,6 +47,30 @@
    "entry_decision": "STRONG BUY",
    "shares": 100,
    "intraday": true
+  },
+  {
+   "rule": "b5",
+   "code": "8801.T",
+   "name": "三井不動産",
+   "entry_date": "2026-11-12",
+   "entry_at": "2026-11-12 16:13",
+   "entry_price": 1595.5,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": false
+  },
+  {
+   "rule": "b5",
+   "code": "9766.T",
+   "name": "コナミG",
+   "entry_date": "2026-11-12",
+   "entry_at": "2026-11-12 16:13",
+   "entry_price": 28650.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": false
   }
  ],
  "closed": [
@@ -301,5 +325,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-11-11 21:48"
+ "updated_at": "2026-11-12 16:13"
 }
