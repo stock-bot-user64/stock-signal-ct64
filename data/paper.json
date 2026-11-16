@@ -13,18 +13,6 @@
    "intraday": true
   },
   {
-   "rule": "b5",
-   "code": "8136.T",
-   "name": "サンリオ",
-   "entry_date": "2026-11-09",
-   "entry_at": "2026-11-09 19:56",
-   "entry_price": 1169.5,
-   "entry_score": 2.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": false
-  },
-  {
    "rule": "sb25",
    "code": "9509.T",
    "name": "北海道電力",
@@ -71,6 +59,54 @@
    "entry_decision": "BUY",
    "shares": 100,
    "intraday": false
+  },
+  {
+   "rule": "sb25",
+   "code": "9766.T",
+   "name": "コナミG",
+   "entry_date": "2026-11-16",
+   "entry_at": "2026-11-16 09:43",
+   "entry_price": 29665.0,
+   "entry_score": 4.0,
+   "entry_decision": "STRONG BUY",
+   "shares": 100,
+   "intraday": true
+  },
+  {
+   "rule": "b5",
+   "code": "7203.T",
+   "name": "トヨタ自動車",
+   "entry_date": "2026-11-16",
+   "entry_at": "2026-11-16 09:43",
+   "entry_price": 3453.0,
+   "entry_score": 2.5,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true
+  },
+  {
+   "rule": "b5",
+   "code": "8267.T",
+   "name": "イオン",
+   "entry_date": "2026-11-16",
+   "entry_at": "2026-11-16 09:43",
+   "entry_price": 1299.5,
+   "entry_score": 2.5,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true
+  },
+  {
+   "rule": "b5",
+   "code": "7832.T",
+   "name": "バンダイナムコ",
+   "entry_date": "2026-11-16",
+   "entry_at": "2026-11-16 09:43",
+   "entry_price": 7037.0,
+   "entry_score": 2.5,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true
   }
  ],
  "closed": [
@@ -307,6 +343,24 @@
    "exit_decision": "HOLD",
    "pnl": 168500,
    "ret": 0.0626
+  },
+  {
+   "rule": "b5",
+   "code": "8136.T",
+   "name": "サンリオ",
+   "entry_date": "2026-11-09",
+   "entry_at": "2026-11-09 19:56",
+   "entry_price": 1169.5,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": false,
+   "exit_date": "2026-11-16",
+   "exit_at": "2026-11-16 09:43",
+   "exit_price": 1091.5,
+   "exit_decision": "SELL",
+   "pnl": -7800,
+   "ret": -0.0667
   }
  ],
  "rules": [
@@ -325,5 +379,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-11-13 22:14"
+ "updated_at": "2026-11-16 09:43"
 }
