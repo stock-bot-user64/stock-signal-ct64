@@ -70,5 +70,11 @@
     "name": "バンダイナムコ",
     "enabled": true,
     "memo": ""
+  },
+  {
+    "code": "2802.T",
+    "name": "味の素",
+    "enabled": true,
+    "memo": ""
   }
 ]
