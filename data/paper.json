@@ -119,6 +119,18 @@
    "entry_decision": "BUY",
    "shares": 100,
    "intraday": true
+  },
+  {
+   "rule": "sb25",
+   "code": "7832.T",
+   "name": "バンダイナムコ",
+   "entry_date": "2026-11-17",
+   "entry_at": "2026-11-17 12:22",
+   "entry_price": 7107.0,
+   "entry_score": 4.0,
+   "entry_decision": "STRONG BUY",
+   "shares": 100,
+   "intraday": true
   }
  ],
  "closed": [
@@ -391,5 +403,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-11-16 22:46"
+ "updated_at": "2026-11-17 12:22"
 }
