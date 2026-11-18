@@ -26,18 +26,6 @@
   },
   {
    "rule": "b5",
-   "code": "9509.T",
-   "name": "北海道電力",
-   "entry_date": "2026-11-11",
-   "entry_at": "2026-11-11 09:42",
-   "entry_price": 1118.5,
-   "entry_score": 3.5,
-   "entry_decision": "STRONG BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
    "code": "8801.T",
    "name": "三井不動産",
    "entry_date": "2026-11-12",
@@ -385,6 +373,24 @@
    "exit_decision": "SELL",
    "pnl": -7800,
    "ret": -0.0667
+  },
+  {
+   "rule": "b5",
+   "code": "9509.T",
+   "name": "北海道電力",
+   "entry_date": "2026-11-11",
+   "entry_at": "2026-11-11 09:42",
+   "entry_price": 1118.5,
+   "entry_score": 3.5,
+   "entry_decision": "STRONG BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-11-18",
+   "exit_at": "2026-11-18 12:22",
+   "exit_price": 1099.5,
+   "exit_decision": "HOLD",
+   "pnl": -1900,
+   "ret": -0.017
   }
  ],
  "rules": [
@@ -403,5 +409,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-11-17 23:38"
+ "updated_at": "2026-11-18 12:22"
 }
