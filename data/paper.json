@@ -25,30 +25,6 @@
    "intraday": true
   },
   {
-   "rule": "b5",
-   "code": "8801.T",
-   "name": "三井不動産",
-   "entry_date": "2026-11-12",
-   "entry_at": "2026-11-12 16:13",
-   "entry_price": 1595.5,
-   "entry_score": 2.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": false
-  },
-  {
-   "rule": "b5",
-   "code": "9766.T",
-   "name": "コナミG",
-   "entry_date": "2026-11-12",
-   "entry_at": "2026-11-12 16:13",
-   "entry_price": 28650.0,
-   "entry_score": 2.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": false
-  },
-  {
    "rule": "sb25",
    "code": "9766.T",
    "name": "コナミG",
@@ -391,6 +367,42 @@
    "exit_decision": "HOLD",
    "pnl": -1900,
    "ret": -0.017
+  },
+  {
+   "rule": "b5",
+   "code": "8801.T",
+   "name": "三井不動産",
+   "entry_date": "2026-11-12",
+   "entry_at": "2026-11-12 16:13",
+   "entry_price": 1595.5,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": false,
+   "exit_date": "2026-11-19",
+   "exit_at": "2026-11-19 16:28",
+   "exit_price": 1586.5,
+   "exit_decision": "HOLD",
+   "pnl": -900,
+   "ret": -0.0056
+  },
+  {
+   "rule": "b5",
+   "code": "9766.T",
+   "name": "コナミG",
+   "entry_date": "2026-11-12",
+   "entry_at": "2026-11-12 16:13",
+   "entry_price": 28650.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": false,
+   "exit_date": "2026-11-19",
+   "exit_at": "2026-11-19 16:28",
+   "exit_price": 30740.0,
+   "exit_decision": "HOLD",
+   "pnl": 209000,
+   "ret": 0.0729
   }
  ],
  "rules": [
@@ -409,5 +421,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-11-18 23:15"
+ "updated_at": "2026-11-19 16:28"
 }
