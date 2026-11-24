@@ -37,54 +37,6 @@
    "intraday": true
   },
   {
-   "rule": "b5",
-   "code": "7203.T",
-   "name": "トヨタ自動車",
-   "entry_date": "2026-11-16",
-   "entry_at": "2026-11-16 09:43",
-   "entry_price": 3453.0,
-   "entry_score": 2.5,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
-   "code": "8267.T",
-   "name": "イオン",
-   "entry_date": "2026-11-16",
-   "entry_at": "2026-11-16 09:43",
-   "entry_price": 1299.5,
-   "entry_score": 2.5,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
-   "code": "7832.T",
-   "name": "バンダイナムコ",
-   "entry_date": "2026-11-16",
-   "entry_at": "2026-11-16 09:43",
-   "entry_price": 7037.0,
-   "entry_score": 2.5,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "b5",
-   "code": "6758.T",
-   "name": "6758",
-   "entry_date": "2026-11-16",
-   "entry_at": "2026-11-16 12:23",
-   "entry_price": 4352.0,
-   "entry_score": 2.0,
-   "entry_decision": "BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
    "rule": "sb25",
    "code": "7832.T",
    "name": "バンダイナムコ",
@@ -415,6 +367,78 @@
    "exit_decision": "HOLD",
    "pnl": 209000,
    "ret": 0.0729
+  },
+  {
+   "rule": "b5",
+   "code": "7203.T",
+   "name": "トヨタ自動車",
+   "entry_date": "2026-11-16",
+   "entry_at": "2026-11-16 09:43",
+   "entry_price": 3453.0,
+   "entry_score": 2.5,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-11-24",
+   "exit_at": "2026-11-24 18:56",
+   "exit_price": 3311.0,
+   "exit_decision": "HOLD",
+   "pnl": -14200,
+   "ret": -0.0411
+  },
+  {
+   "rule": "b5",
+   "code": "8267.T",
+   "name": "イオン",
+   "entry_date": "2026-11-16",
+   "entry_at": "2026-11-16 09:43",
+   "entry_price": 1299.5,
+   "entry_score": 2.5,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-11-24",
+   "exit_at": "2026-11-24 18:56",
+   "exit_price": 1191.5,
+   "exit_decision": "HOLD",
+   "pnl": -10800,
+   "ret": -0.0831
+  },
+  {
+   "rule": "b5",
+   "code": "7832.T",
+   "name": "バンダイナムコ",
+   "entry_date": "2026-11-16",
+   "entry_at": "2026-11-16 09:43",
+   "entry_price": 7037.0,
+   "entry_score": 2.5,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-11-24",
+   "exit_at": "2026-11-24 18:56",
+   "exit_price": 7021.0,
+   "exit_decision": "HOLD",
+   "pnl": -1600,
+   "ret": -0.0023
+  },
+  {
+   "rule": "b5",
+   "code": "6758.T",
+   "name": "6758",
+   "entry_date": "2026-11-16",
+   "entry_at": "2026-11-16 12:23",
+   "entry_price": 4352.0,
+   "entry_score": 2.0,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-11-24",
+   "exit_at": "2026-11-24 18:56",
+   "exit_price": 4322.0,
+   "exit_decision": "HOLD",
+   "pnl": -3000,
+   "ret": -0.0069
   }
  ],
  "rules": [
@@ -433,5 +457,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-11-24 01:09"
+ "updated_at": "2026-11-24 18:56"
 }
