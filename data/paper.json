@@ -2,18 +2,6 @@
  "positions": [
   {
    "rule": "sb25",
-   "code": "8801.T",
-   "name": "三井不動産",
-   "entry_date": "2026-10-19",
-   "entry_at": "2026-10-19 09:57",
-   "entry_price": 1523.0,
-   "entry_score": 3.5,
-   "entry_decision": "STRONG BUY",
-   "shares": 100,
-   "intraday": true
-  },
-  {
-   "rule": "sb25",
    "code": "9509.T",
    "name": "北海道電力",
    "entry_date": "2026-11-11",
@@ -439,6 +427,24 @@
    "exit_decision": "HOLD",
    "pnl": -3000,
    "ret": -0.0069
+  },
+  {
+   "rule": "sb25",
+   "code": "8801.T",
+   "name": "三井不動産",
+   "entry_date": "2026-10-19",
+   "entry_at": "2026-10-19 09:57",
+   "entry_price": 1523.0,
+   "entry_score": 3.5,
+   "entry_decision": "STRONG BUY",
+   "shares": 100,
+   "intraday": true,
+   "exit_date": "2026-11-25",
+   "exit_at": "2026-11-25 17:37",
+   "exit_price": 1584.0,
+   "exit_decision": "HOLD",
+   "pnl": 6100,
+   "ret": 0.0401
   }
  ],
  "rules": [
@@ -457,5 +463,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-11-25 00:58"
+ "updated_at": "2026-11-25 17:37"
 }
