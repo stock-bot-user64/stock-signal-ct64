@@ -47,6 +47,18 @@
    "entry_decision": "BUY",
    "shares": 100,
    "intraday": false
+  },
+  {
+   "rule": "b5",
+   "code": "3556.T",
+   "name": "リネットジャパン",
+   "entry_date": "2026-11-27",
+   "entry_at": "2026-11-27 17:37",
+   "entry_price": 856.0,
+   "entry_score": 2.5,
+   "entry_decision": "BUY",
+   "shares": 100,
+   "intraday": false
   }
  ],
  "closed": [
@@ -463,5 +475,5 @@
    "shares": 100
   }
  ],
- "updated_at": "2026-11-27 00:27"
+ "updated_at": "2026-11-27 17:37"
 }
